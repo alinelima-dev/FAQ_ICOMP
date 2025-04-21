@@ -1,0 +1,19 @@
+.filter-container {
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+}
+
+.filter-dropdown {
+  max-width: 300px;
+}
+
+.accordion-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.content-summary {
+  word-wrap: break-word;
+}
