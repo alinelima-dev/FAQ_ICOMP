@@ -1,5 +1,5 @@
 // src/pages/ListarPerguntas.tsx
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import {
   Container,
@@ -25,16 +25,16 @@ const [snackbarMessage, setSnackbarMessage] = useState("");
 const ListarPerguntas = () => {
   const [perguntas, setPerguntas] = useState<Pergunta[]>([]); // Definindo o tipo para perguntas
 
-  useEffect(() => {
+  /* useEffect(() => {
     axios
-      .get("http://localhost:3002/quastions") // Substitua pela URL da sua API
+      .get("http://localhost:3000/questions") // Substitua pela URL da sua API
       .then((res) => setPerguntas(res.data))
       .catch((err) => {
         console.error("Erro ao buscar perguntas:", err);
         setSnackbarMessage("Erro ao carregar as perguntas");
         setOpenSnackbar(true);
       });
-  }, []);
+  }, []);*/
 
   return (
     <Container sx={{ mt: 4 }}>

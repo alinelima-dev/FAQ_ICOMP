@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "reactstrap";
-import Navbar from "../components/Navbar";
-import api from "../services/api";
+import Navbar from "../../components/Navbar";
+import api from "../../services/api";
 import "./css/PerguntaCompleta.css";
 
 interface Pergunta {

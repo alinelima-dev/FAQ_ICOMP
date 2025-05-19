@@ -1,13 +1,11 @@
 //import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Login from "./pages/Login";
-import Perguntas from "./pages/Perguntas";
-import Categorias from "./pages/Categorias";
+import Login from "./pages/adm/Login";
+import Perguntas from "./pages/adm/Perguntas";
+import Categorias from "./pages/adm/Categorias";
 import ProtectedRoute from "./components/ProtectedRoute";
-import CriarPergunta from "./pages/CriarPergunta";
-import EditarPergunta from "./pages/EditarPergunta";
-import Home from "./pages/Home";
-import PerguntaCompleta from "./pages/PerguntaCompleta";
+import Home from "./pages/user/Home";
+import PerguntaCompleta from "./pages/user/PerguntaCompleta";
 
 function App() {
   return (
@@ -33,22 +31,6 @@ function App() {
             element={
               <ProtectedRoute>
                 <Categorias />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/adm/criar-pergunta"
-            element={
-              <ProtectedRoute>
-                <CriarPergunta />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/adm/perguntas/editar/:id"
-            element={
-              <ProtectedRoute>
-                <EditarPergunta />
               </ProtectedRoute>
             }
           />

@@ -24,6 +24,7 @@ export async function login(usuario: string, senha: string) {
       } else if (error.request) {
         // Se a requisição foi feita mas não houve resposta (ex: problema de rede)
         console.error('Erro na requisição:', error.request);
+        console.log(JSON.stringify(error))
         throw new Error('Erro ao conectar com o servidor. Verifique sua conexão.');
       } else {
         // Erro inesperado

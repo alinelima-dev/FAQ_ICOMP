@@ -1,19 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { Button as ReactstrapButton, Input } from "reactstrap";
-import { useNavigate } from "react-router-dom";
-import Navbar from "../components/Navbar";
-import api from "../services/api";
+import { Input } from "reactstrap";
+import Navbar from "../../components/Navbar";
+import api from "../../services/api";
 import {
   Box,
   Grid,
-  Card,
-  CardContent,
-  CardActions,
-  Typography,
   CircularProgress,
 } from "@mui/material";
 import "./css/Home.css";
-import CardPergunta from "../components/CardPergunta";
+import CardPergunta from "../../components/CardPergunta";
 
 interface Pergunta {
   id: number;
@@ -33,7 +28,6 @@ const Home: React.FC = () => {
   const [categoriaSelecionada, setCategoriaSelecionada] = useState("None");
   const [pesquisa, setPesquisa] = useState("");
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchAll = async () => {

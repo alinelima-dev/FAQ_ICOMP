@@ -1,23 +1,27 @@
 import React, { useEffect, useState } from "react";
 import {
   Table,
-  Button,
   Input,
   Modal,
   ModalHeader,
   ModalBody,
   ModalFooter,
 } from "reactstrap";
-import { useNavigate } from "react-router-dom";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { MdAddCircle } from "react-icons/md";
-import NavbarAdm from "../components/NavbarAdm";
-import api from "../services/api";
+import { Dialog, Button } from "@mui/material";
+import axios from "axios";
+import NavbarAdm from "../../components/NavbarAdm";
+import api from "../../services/api";
 import "./css/perguntas.css";
+import CriarPergunta from "../adm/CriarPergunta";
+import EditarPergunta from "../adm/EditarPergunta";
+//import EditarPergunta from "../components/EditarPergunta";
 
 interface Pergunta {
   id: number;
   title: string;
+  content: string;
   category_id: number;
 }
 
@@ -31,9 +35,24 @@ const Perguntas: React.FC = () => {
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [categoriaSelecionada, setCategoriaSelecionada] = useState("None");
   const [pesquisa, setPesquisa] = useState("");
-  const [perguntaParaExcluir, setPerguntaParaExcluir] = useState<Pergunta | null>(null);
+  const [perguntaParaExcluir, setPerguntaParaExcluir] =
+    useState<Pergunta | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
-  const navigate = useNavigate();
+  const [mostrarCriarPergunta, setMostrarCriarPergunta] = useState(false);
+  const [openCriar, setOpenCriar] = useState(false);
+  const [openEditar, setOpenEditar] = useState(false);
+  const [mostrarEditarPergunta, setMostrarEditarPergunta] = useState(false);
+  const [perguntaSelecionada, setPerguntaSelecionada] =
+    useState<Pergunta | null>(null);
+
+  const fetchPerguntas = async () => {
+    try {
+      const response = await axios.get("http://localhost:3002/api/questions");
+      setPerguntas(response.data);
+    } catch (error) {
+      console.error("Erro ao buscar perguntas:", error);
+    }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -64,7 +83,7 @@ const Perguntas: React.FC = () => {
     if (!perguntaParaExcluir) return;
     try {
       await api.delete(`/questions/${perguntaParaExcluir.id}`);
-      setPerguntas(perguntas.filter(p => p.id !== perguntaParaExcluir.id));
+      setPerguntas(perguntas.filter((p) => p.id !== perguntaParaExcluir.id));
       closeModal();
       alert("Pergunta deletada com sucesso!");
     } catch (error) {
@@ -72,6 +91,11 @@ const Perguntas: React.FC = () => {
       console.error(error);
     }
   };
+
+  /* const handleEditarClick = (id: string) => {
+    setPerguntaParaEditarId(id);
+    setMostrarEditarPergunta(true);
+  }; */
 
   const perguntasFiltradas = perguntas.filter((pergunta) => {
     const categoriaValida =
@@ -120,12 +144,24 @@ const Perguntas: React.FC = () => {
           <div className="button-container">
             <Button
               color="primary"
-              onClick={() => navigate("/adm/criar-pergunta")}
               className="action-button"
+              variant="contained"
+              onClick={() => setOpenCriar(true)}
             >
               <MdAddCircle size={20} style={{ marginRight: 5 }} />
               Criar Pergunta
             </Button>
+            <Dialog
+              open={openCriar}
+              onClose={() => setOpenCriar(false)}
+              maxWidth="md"
+              fullWidth
+            >
+              <CriarPergunta
+                onClose={() => setOpenCriar(false)}
+                onPerguntaCriada={fetchPerguntas} // ou outro callback para atualizar a lista
+              />
+            </Dialog>
           </div>
         </div>
 
@@ -144,23 +180,40 @@ const Perguntas: React.FC = () => {
                 <td>{index + 1}</td>
                 <td>{pergunta.title}</td>
                 <td>
-                  {
-                    categorias.find((c) => c.id === pergunta.category_id)
-                      ?.name || "Sem Categoria"
-                  }
+                  {categorias.find((c) => c.id === pergunta.category_id)
+                    ?.name || "Sem Categoria"}
                 </td>
                 <td>
                   <div className="actionButton">
                     <Button
-                      color="warning"
-                      size="sm"
-                      onClick={() => navigate(`/adm/perguntas/editar/${pergunta.id}`)}
+                      color="primary"
+                      className="action-button"
+                      variant="contained"
+                      onClick={() => {
+                        setPerguntaSelecionada(pergunta);
+                        setOpenEditar(true);
+                      }}
                     >
                       <FaEdit />
                     </Button>
+                    <Dialog
+                      open={openEditar}
+                      onClose={() => setOpenEditar(false)}
+                      maxWidth="md"
+                      fullWidth
+                    >
+                      {perguntaSelecionada && (
+                        <EditarPergunta
+                          pergunta={perguntaSelecionada}
+                          onClose={() => setOpenEditar(false)}
+                          onPerguntaEditada={fetchPerguntas}
+                        />
+                      )}
+                    </Dialog>
                     <Button
-                      color="danger"
-                      size="sm"
+                      color="error"
+                      className="action-button"
+                      variant="contained"
                       onClick={() => openModal(pergunta)}
                     >
                       <FaTrash />
@@ -181,7 +234,7 @@ const Perguntas: React.FC = () => {
           <strong>{perguntaParaExcluir?.title}</strong>"?
         </ModalBody>
         <ModalFooter>
-          <Button color="danger" onClick={handleDelete}>
+          <Button color="primary" onClick={handleDelete}>
             Sim, excluir
           </Button>{" "}
           <Button color="secondary" onClick={closeModal}>
@@ -189,6 +242,31 @@ const Perguntas: React.FC = () => {
           </Button>
         </ModalFooter>
       </Modal>
+
+      {mostrarCriarPergunta && (
+        <CriarPergunta
+          onClose={() => setMostrarCriarPergunta(false)}
+          onPerguntaCriada={() => {
+            setMostrarCriarPergunta(false);
+            api
+              .get<Pergunta[]>("/questions")
+              .then((res) => setPerguntas(res.data));
+          }}
+        />
+      )}
+
+      {mostrarEditarPergunta && perguntaSelecionada && (
+        <EditarPergunta
+          pergunta={perguntaSelecionada}
+          onClose={() => setMostrarEditarPergunta(false)}
+          onPerguntaEditada={() => {
+            setMostrarEditarPergunta(false);
+            api
+              .get<Pergunta[]>("/questions/")
+              .then((res) => setPerguntas(res.data));
+          }}
+        />
+      )}
     </div>
   );
 };

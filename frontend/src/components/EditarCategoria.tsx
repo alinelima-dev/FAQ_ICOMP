@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import api from "../services/api";
 import CategoriaModal from "./CategoriaPopup";
+import { Alert, Box, Snackbar } from "@mui/material";
 
 interface Categoria {
   id: number;
@@ -20,26 +21,58 @@ const EditarCategoria: React.FC<EditarCategoriaProps> = ({
   categoria,
   onCategoriaEditada,
 }) => {
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState<"success" | "error">(
+    "success"
+  );
+
+  const handleSnackbarClose = () => {
+    setSnackbarOpen(false);
+  };
+
   const handleSubmit = async (nome: string) => {
     try {
       await api.put(`/categories/${categoria.id}`, { name: nome });
-      alert("Categoria editada com sucesso!");
+
+      setSnackbarMessage("Categoria editada com sucesso!");
+      setSnackbarSeverity("success");
+      setSnackbarOpen(true);
+
       onCategoriaEditada();
       onClose();
     } catch (error) {
-      console.error("Erro ao editar categoria:", error);
-      alert("Erro ao editar a categoria.");
+      setSnackbarMessage("Erro ao editar a categoria.");
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
     }
   };
 
   return (
-    <CategoriaModal
-      isOpen={isOpen}
-      onClose={onClose}
-      onSubmit={handleSubmit}
-      initialValue={categoria.name}
-      titulo="Editar Categoria"
-    />
+    <Box>
+      <CategoriaModal
+        isOpen={isOpen}
+        onClose={onClose}
+        onSubmit={handleSubmit}
+        initialValue={categoria.name}
+        titulo="Editar Categoria"
+      />
+
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={3000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert
+          onClose={handleSnackbarClose}
+          severity={snackbarSeverity}
+          sx={{ width: "100%" }}
+        >
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
+    </Box>
   );
 };
 

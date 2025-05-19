@@ -2,7 +2,7 @@ import "./css/Login.css";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Form, FormGroup, Button, Input, Label } from "reactstrap";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuth } from "../../contexts/AuthContext";
 
 const Login: React.FC = () => {
   const [usuario, setUsuario] = useState("");

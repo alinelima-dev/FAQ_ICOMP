@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { Table, Button } from "reactstrap";
-import NavbarAdm from "../components/NavbarAdm";
-import CriarCategoria from "../components/CriarCategoria";
-import EditarCategoria from "../components/EditarCategoria";
-import api from "../services/api";
+import { Table } from "reactstrap";
+import { Button } from "@mui/material"
+
+import NavbarAdm from "../../components/NavbarAdm";
+import CriarCategoria from "../../components/CriarCategoria";
+import EditarCategoria from "../../components/EditarCategoria";
+import api from "../../services/api";
+import { FaEdit, FaTrash } from "react-icons/fa";
 
 interface Categoria {
   id: number;
@@ -12,7 +15,8 @@ interface Categoria {
 
 const Categorias: React.FC = () => {
   const [categorias, setCategorias] = useState<Categoria[]>([]);
-  const [categoriaSelecionada, setCategoriaSelecionada] = useState<Categoria | null>(null);
+  const [categoriaSelecionada, setCategoriaSelecionada] =
+    useState<Categoria | null>(null);
   const [isEditOpen, setIsEditOpen] = useState(false);
 
   const fetchCategorias = async () => {
@@ -42,6 +46,8 @@ const Categorias: React.FC = () => {
       const msg = error?.response?.data?.error || "Erro ao deletar categoria";
       alert(msg);
     }
+
+    
   };
 
   return (
@@ -52,7 +58,7 @@ const Categorias: React.FC = () => {
           <h2>Categorias</h2>
           <CriarCategoria onCategoriaCriada={fetchCategorias} />
         </div>
-        <Table striped>
+        <Table striped hover responsive className="custom-table">
           <thead>
             <tr>
               <th>#</th>
@@ -66,12 +72,24 @@ const Categorias: React.FC = () => {
                 <td>{index + 1}</td>
                 <td>{categoria.name}</td>
                 <td>
-                  <Button color="warning" size="sm" onClick={() => handleEdit(categoria)}>
-                    Editar
-                  </Button>{" "}
-                  <Button color="danger" size="sm" onClick={() => handleDelete(categoria.id)}>
-                    Deletar
-                  </Button>
+                  <div className="actionButton">
+                    <Button
+                      color="primary"
+                      className="action-button"
+                      variant="contained"
+                      onClick={() => handleEdit(categoria)}
+                    >
+                      <FaEdit />
+                    </Button>
+                    <Button
+                      color="error"
+                      className="action-button"
+                      variant="contained"
+                      onClick={() => handleDelete(categoria.id)}
+                    >
+                      <FaTrash />
+                    </Button>
+                  </div>
                 </td>
               </tr>
             ))}
@@ -80,7 +98,7 @@ const Categorias: React.FC = () => {
         {categoriaSelecionada && (
           <EditarCategoria
             isOpen={isEditOpen}
-            toggle={() => setIsEditOpen(!isEditOpen)}
+            onClose={() => setIsEditOpen(false)}
             categoria={categoriaSelecionada}
             onCategoriaEditada={fetchCategorias}
           />
