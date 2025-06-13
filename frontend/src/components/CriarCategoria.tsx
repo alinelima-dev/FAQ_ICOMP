@@ -1,12 +1,9 @@
 import React, { useState } from "react";
 import { Button } from "@mui/material";
-
-
-import api from "../services/api";
 import CategoriaPopup from "./CategoriaPopup";
 import "./css/CriarCategoria.css";
-
 import { MdAddCircle } from "react-icons/md";
+import { useFaqService } from "@contexts/FaqServiceContext";
 
 interface CriarCategoriaProps {
   onCategoriaCriada: () => void;
@@ -17,15 +14,12 @@ const CriarCategoria: React.FC<CriarCategoriaProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
 
+  const faqService = useFaqService();
+
   const handleSubmit = async (nome: string) => {
-    try {
-      await api.post("/categories", { name: nome });
-      alert("Categoria criada com sucesso!");
-      onCategoriaCriada();
-      setIsOpen(false);
-    } catch (err) {
-      alert("Erro ao criar categoria.");
-    }
+    await faqService.createCategory({ name: nome });
+    onCategoriaCriada();
+    setIsOpen(false);
   };
 
   return (

@@ -1,8 +1,12 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
-import { FaSignOutAlt, FaQuestionCircle, FaClipboardList } from 'react-icons/fa';
-import './css/NavbarAdm.css';
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
+import {
+  FaSignOutAlt,
+  FaQuestionCircle,
+  FaClipboardList,
+} from "react-icons/fa";
+import "./css/NavbarAdm.css";
 
 const NavbarAdm: React.FC = () => {
   const { token, logout } = useAuth();
@@ -13,9 +17,8 @@ const NavbarAdm: React.FC = () => {
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
+    navigate("/login");
   };
-
 
   return (
     <div className="navbar">

@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import ReactQuill from "react-quill";
-import "react-quill/dist/quill.snow.css";
-import api from "../../services/api";
+
 import "./css/EditarPergunta.css";
 import {
   Alert,
@@ -17,21 +15,14 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
 
-interface Categoria {
-  id: number;
-  name: string;
-}
-
-interface Pergunta {
-  id: number;
-  title: string;
-  content: string;
-  category_id: number;
-}
+import { Category, Question } from "types/faqTypes";
+import { useFaqService } from "@contexts/FaqServiceContext";
 
 interface EditarPerguntaProps {
-  pergunta: Pergunta;
+  pergunta: Question;
   onClose: () => void;
   onPerguntaEditada: () => void;
 }
@@ -41,9 +32,10 @@ const EditarPergunta: React.FC<EditarPerguntaProps> = ({
   onClose,
   onPerguntaEditada,
 }) => {
+  const faqService = useFaqService();
   const [titulo, setTitulo] = useState("");
   const [content, setContent] = useState("");
-  const [categorias, setCategorias] = useState<Categoria[]>([]);
+  const [categorias, setCategorias] = useState<Category[]>([]);
   const [categoriaSelecionada, setCategoriaSelecionada] = useState<
     number | string
   >(0);
@@ -63,8 +55,8 @@ const EditarPergunta: React.FC<EditarPerguntaProps> = ({
 
     const fetchCategorias = async () => {
       try {
-        const categoriasRes = await api.get<Categoria[]>("/categories");
-        setCategorias(categoriasRes.data);
+        const data = await faqService.getCategories();
+        setCategorias(data);
       } catch (error) {
         console.error("Erro ao buscar categorias:", error);
       }
@@ -88,7 +80,7 @@ const EditarPergunta: React.FC<EditarPerguntaProps> = ({
     setIsSubmitting(true);
 
     try {
-      await api.put(`/questions/${pergunta.id}`, {
+      await faqService.updateQuestion(pergunta.id, {
         title: titulo,
         content,
         category_id: Number(categoriaSelecionada),
@@ -103,6 +95,9 @@ const EditarPergunta: React.FC<EditarPerguntaProps> = ({
     } finally {
       setIsSubmitting(false);
     }
+  };
+  const handleQuillChange = (value: string) => {
+    setContent(value);
   };
 
   const handleDialogClose = () => {
@@ -144,12 +139,14 @@ const EditarPergunta: React.FC<EditarPerguntaProps> = ({
           <Typography variant="subtitle1" gutterBottom>
             Conteúdo (Resposta)
           </Typography>
+
           <ReactQuill
-            value={content}
-            onChange={setContent}
             theme="snow"
-            aria-label="Editor de conteúdo"
+            value={content}
+            onChange={handleQuillChange}
+            style={{ height: "200px", marginBottom: "50px" }}
           />
+
           {errors.content && (
             <Typography color="error" variant="body2">
               {errors.content}

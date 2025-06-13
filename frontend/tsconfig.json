@@ -3,5 +3,27 @@
   "references": [
     { "path": "./tsconfig.app.json" },
     { "path": "./tsconfig.node.json" }
-  ]
+  ],
+  "compilerOptions": {
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "baseUrl": "src",
+    "paths": {
+      "@assets/*": ["./assets/*"],
+      "@components/*": ["./components/*"],
+      "@config/*": ["./config/*"],
+      "@context/*": ["./context/*"],
+      "@hooks/*": ["./hooks/*"],
+      "@contexts/*": ["./contexts/*"],
+      "@ioc/*": ["./ioc/*"],
+      "@modules/*": ["./modules/*"],
+      "@pages/*": ["./pages/*"],
+      "@utils/*": ["./utils/*"],
+      "@locales/*": ["./locales/*"]
+    },
+    "types": []
+  },
+  "include": ["src/**/*"]
 }

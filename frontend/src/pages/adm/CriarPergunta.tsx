@@ -16,14 +16,11 @@ import {
 import { useNavigate } from "react-router-dom";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
-import api from "../../services/api";
+
 import "./css/CriarPergunta.css";
 import CriarCategoria from "../../components/CriarCategoria";
-
-interface Categoria {
-  id: number;
-  name: string;
-}
+import { useFaqService } from "@contexts/FaqServiceContext";
+import { Category } from "types/faqTypes";
 
 interface CriarPerguntaProps {
   onClose: () => void;
@@ -34,12 +31,12 @@ const CriarPergunta: React.FC<CriarPerguntaProps> = ({
   onClose,
   onPerguntaCriada,
 }) => {
+  const faqService = useFaqService();
+
   const [titulo, setTitulo] = useState("");
   const [content, setContent] = useState("");
-  const [categorias, setCategorias] = useState<Categoria[]>([]);
-  const [categoriaSelecionada, setCategoriaSelecionada] = useState<
-    number | null
-  >(null);
+  const [categorias, setCategorias] = useState<Category[]>([]);
+  const [categoriaSelecionada, setCategoriaSelecionada] = useState<number>();
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [openDialog, setOpenDialog] = useState(false);
   const [dialogMessage, setDialogMessage] = useState("");
@@ -50,8 +47,8 @@ const CriarPergunta: React.FC<CriarPerguntaProps> = ({
 
   const fetchCategorias = async () => {
     try {
-      const response = await api.get<Categoria[]>("/categories");
-      setCategorias(response.data);
+      const data = await faqService.getCategories();
+      setCategorias(data);
     } catch (error) {
       console.error("Erro ao buscar categorias:", error);
     }
@@ -75,7 +72,7 @@ const CriarPergunta: React.FC<CriarPerguntaProps> = ({
     setIsSubmitting(true);
 
     try {
-      await api.post("/questions", {
+      await faqService.createQuestion({
         title: titulo,
         content,
         category_id: categoriaSelecionada,
@@ -102,6 +99,10 @@ const CriarPergunta: React.FC<CriarPerguntaProps> = ({
     }
   };
 
+  const handleQuillChange = (value: string) => {
+    setContent(value);
+  };
+
   return (
     <Box p={3}>
       <Box display="flex" justifyContent="flex-end">
@@ -125,11 +126,12 @@ const CriarPergunta: React.FC<CriarPerguntaProps> = ({
           <Typography variant="subtitle1" gutterBottom>
             Conteúdo (Resposta)
           </Typography>
+
           <ReactQuill
-            value={content}
-            onChange={setContent}
             theme="snow"
-            aria-label="Editor de conteúdo"
+            value={content}
+            onChange={handleQuillChange}
+            style={{ height: "200px", marginBottom: "50px" }}
           />
           {errors.content && (
             <Typography color="error" variant="body2">
@@ -179,19 +181,19 @@ const CriarPergunta: React.FC<CriarPerguntaProps> = ({
       </Box>
 
       <Snackbar
-              open={openDialog}
-              autoHideDuration={2000}
-              onClose={handleDialogClose}
-              anchorOrigin={{ vertical: "top", horizontal: "center" }}
-            >
-              <Alert
-                onClose={handleDialogClose}
-                severity={dialogTitle === "Sucesso" ? "success" : "error"}
-                sx={{ width: "100%" }}
-              >
-                {dialogMessage}
-              </Alert>
-            </Snackbar>
+        open={openDialog}
+        autoHideDuration={2000}
+        onClose={handleDialogClose}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert
+          onClose={handleDialogClose}
+          severity={dialogTitle === "Sucesso" ? "success" : "error"}
+          sx={{ width: "100%" }}
+        >
+          {dialogMessage}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

@@ -11,7 +11,7 @@ import {
 interface CategoriaPopupProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (nome: string) => void;
+  onSubmit: (nome: string) => Promise<void>;
   initialValue?: string;
   titulo: string;
 }
@@ -33,17 +33,16 @@ const CategoriaPopup: React.FC<CategoriaPopupProps> = ({
   useEffect(() => {
     if (isOpen) {
       setNome(initialValue);
+      setSnackbarOpen(false);
+      setSnackbarMessage("");
     }
   }, [isOpen, initialValue]);
 
   const handleSnackbarClose = () => {
     setSnackbarOpen(false);
-    if (snackbarMessage === "Nenhuma alteração foi feita.") {
-      onClose();
-    }
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!nome.trim()) {
       setSnackbarMessage("O nome da categoria é obrigatório.");
       setSnackbarSeverity("error");
@@ -58,11 +57,27 @@ const CategoriaPopup: React.FC<CategoriaPopupProps> = ({
       return;
     }
 
-    onSubmit(nome);
-    setSnackbarMessage("Categoria salva com sucesso.");
-    setSnackbarSeverity("success");
-    setSnackbarOpen(true);
-    onClose();
+    try {
+      await onSubmit(nome);
+      setSnackbarMessage("Categoria salva com sucesso.");
+      setSnackbarSeverity("success");
+      setSnackbarOpen(true);
+      onClose();
+    } catch (error: any) {
+      console.error("Erro ao salvar categoria no frontend:", error);
+
+      let errorMessage = "Erro desconhecido ao salvar categoria.";
+
+      if (error.response && error.response.data) {
+        errorMessage = error.response.data.message || errorMessage;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+
+      setSnackbarMessage(errorMessage);
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
+    }
   };
 
   if (!isOpen) return null;

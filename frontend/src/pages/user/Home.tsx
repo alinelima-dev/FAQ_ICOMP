@@ -2,11 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Input } from "reactstrap";
 import Navbar from "../../components/Navbar";
 import api from "../../services/api";
-import {
-  Box,
-  Grid,
-  CircularProgress,
-} from "@mui/material";
+import { Box, Grid, CircularProgress } from "@mui/material";
 import "./css/Home.css";
 import CardPergunta from "../../components/CardPergunta";
 

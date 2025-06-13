@@ -1,54 +1,40 @@
 import React, { useEffect, useState } from "react";
-import {
-  Table,
-  Input,
-  Modal,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-} from "reactstrap";
+import { Table, Input } from "reactstrap";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { MdAddCircle } from "react-icons/md";
-import { Dialog, Button } from "@mui/material";
-import axios from "axios";
+import { Button } from "@mui/material";
 import NavbarAdm from "../../components/NavbarAdm";
 import api from "../../services/api";
 import "./css/perguntas.css";
 import CriarPergunta from "../adm/CriarPergunta";
 import EditarPergunta from "../adm/EditarPergunta";
-//import EditarPergunta from "../components/EditarPergunta";
+import { useFaqService } from "@contexts/FaqServiceContext";
+import ConfirmarExclusao from "@components/Dialogs/ConfirmarExclusão";
+import CriarPerguntaDialog from "@components/Dialogs/CriarPerguntaDialog";
+import EditarPerguntaDialog from "@components/Dialogs/EditarPerguntaDialog";
 
-interface Pergunta {
-  id: number;
-  title: string;
-  content: string;
-  category_id: number;
-}
-
-interface Categoria {
-  id: number;
-  name: string;
-}
+import { Question, Category } from "types/faqTypes";
 
 const Perguntas: React.FC = () => {
-  const [perguntas, setPerguntas] = useState<Pergunta[]>([]);
-  const [categorias, setCategorias] = useState<Categoria[]>([]);
+  const faqService = useFaqService();
+  const [perguntas, setPerguntas] = useState<Question[]>([]);
+  const [categorias, setCategorias] = useState<Category[]>([]);
   const [categoriaSelecionada, setCategoriaSelecionada] = useState("None");
   const [pesquisa, setPesquisa] = useState("");
   const [perguntaParaExcluir, setPerguntaParaExcluir] =
-    useState<Pergunta | null>(null);
+    useState<Question | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [mostrarCriarPergunta, setMostrarCriarPergunta] = useState(false);
   const [openCriar, setOpenCriar] = useState(false);
   const [openEditar, setOpenEditar] = useState(false);
   const [mostrarEditarPergunta, setMostrarEditarPergunta] = useState(false);
   const [perguntaSelecionada, setPerguntaSelecionada] =
-    useState<Pergunta | null>(null);
+    useState<Question | null>(null);
 
   const fetchPerguntas = async () => {
     try {
-      const response = await axios.get("http://localhost:3002/api/questions");
-      setPerguntas(response.data);
+      const data = await faqService.getQuestions();
+      setPerguntas(data);
     } catch (error) {
       console.error("Erro ao buscar perguntas:", error);
     }
@@ -57,10 +43,10 @@ const Perguntas: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const perguntasRes = await api.get<Pergunta[]>("/questions");
-        const categoriasRes = await api.get<Categoria[]>("/categories");
-        setPerguntas(perguntasRes.data);
-        setCategorias(categoriasRes.data);
+        const perguntasRes = await faqService.getQuestions();
+        const categoriasRes = await faqService.getCategories();
+        setPerguntas(perguntasRes);
+        setCategorias(categoriasRes);
       } catch (error) {
         console.error("Erro ao buscar dados:", error);
       }
@@ -69,7 +55,7 @@ const Perguntas: React.FC = () => {
     fetchData();
   }, []);
 
-  const openModal = (pergunta: Pergunta) => {
+  const openModal = (pergunta: Question) => {
     setPerguntaParaExcluir(pergunta);
     setModalOpen(true);
   };
@@ -82,7 +68,7 @@ const Perguntas: React.FC = () => {
   const handleDelete = async () => {
     if (!perguntaParaExcluir) return;
     try {
-      await api.delete(`/questions/${perguntaParaExcluir.id}`);
+      await faqService.deleteQuestion(perguntaParaExcluir.id);
       setPerguntas(perguntas.filter((p) => p.id !== perguntaParaExcluir.id));
       closeModal();
       alert("Pergunta deletada com sucesso!");
@@ -91,11 +77,6 @@ const Perguntas: React.FC = () => {
       console.error(error);
     }
   };
-
-  /* const handleEditarClick = (id: string) => {
-    setPerguntaParaEditarId(id);
-    setMostrarEditarPergunta(true);
-  }; */
 
   const perguntasFiltradas = perguntas.filter((pergunta) => {
     const categoriaValida =
@@ -151,17 +132,6 @@ const Perguntas: React.FC = () => {
               <MdAddCircle size={20} style={{ marginRight: 5 }} />
               Criar Pergunta
             </Button>
-            <Dialog
-              open={openCriar}
-              onClose={() => setOpenCriar(false)}
-              maxWidth="md"
-              fullWidth
-            >
-              <CriarPergunta
-                onClose={() => setOpenCriar(false)}
-                onPerguntaCriada={fetchPerguntas} // ou outro callback para atualizar a lista
-              />
-            </Dialog>
           </div>
         </div>
 
@@ -196,20 +166,6 @@ const Perguntas: React.FC = () => {
                     >
                       <FaEdit />
                     </Button>
-                    <Dialog
-                      open={openEditar}
-                      onClose={() => setOpenEditar(false)}
-                      maxWidth="md"
-                      fullWidth
-                    >
-                      {perguntaSelecionada && (
-                        <EditarPergunta
-                          pergunta={perguntaSelecionada}
-                          onClose={() => setOpenEditar(false)}
-                          onPerguntaEditada={fetchPerguntas}
-                        />
-                      )}
-                    </Dialog>
                     <Button
                       color="error"
                       className="action-button"
@@ -226,22 +182,27 @@ const Perguntas: React.FC = () => {
         </Table>
       </div>
 
-      {/* Modal de confirmação */}
-      <Modal isOpen={modalOpen} toggle={closeModal}>
-        <ModalHeader toggle={closeModal}>Confirmar exclusão</ModalHeader>
-        <ModalBody>
-          Tem certeza que deseja excluir a pergunta "
-          <strong>{perguntaParaExcluir?.title}</strong>"?
-        </ModalBody>
-        <ModalFooter>
-          <Button color="primary" onClick={handleDelete}>
-            Sim, excluir
-          </Button>{" "}
-          <Button color="secondary" onClick={closeModal}>
-            Cancelar
-          </Button>
-        </ModalFooter>
-      </Modal>
+      <CriarPerguntaDialog
+        open={openCriar}
+        onClose={() => setOpenCriar(false)}
+        onPerguntaCriada={fetchPerguntas}
+      />
+
+      {perguntaSelecionada && (
+        <EditarPerguntaDialog
+          open={openEditar}
+          pergunta={perguntaSelecionada}
+          onClose={() => setOpenEditar(false)}
+          onPerguntaEditada={fetchPerguntas}
+        />
+      )}
+
+      <ConfirmarExclusao
+        open={modalOpen}
+        itemDescricao={` "${perguntaParaExcluir?.title}"`}
+        onConfirm={handleDelete}
+        onCancel={closeModal}
+      />
 
       {mostrarCriarPergunta && (
         <CriarPergunta
@@ -249,7 +210,7 @@ const Perguntas: React.FC = () => {
           onPerguntaCriada={() => {
             setMostrarCriarPergunta(false);
             api
-              .get<Pergunta[]>("/questions")
+              .get<Question[]>("/questions")
               .then((res) => setPerguntas(res.data));
           }}
         />
@@ -262,7 +223,7 @@ const Perguntas: React.FC = () => {
           onPerguntaEditada={() => {
             setMostrarEditarPergunta(false);
             api
-              .get<Pergunta[]>("/questions/")
+              .get<Question[]>("/questions/")
               .then((res) => setPerguntas(res.data));
           }}
         />

@@ -29,7 +29,9 @@ const PerguntaCompleta: React.FC = () => {
         const perguntaRes = await api.get<Pergunta>(`/questions/${id}`);
         setPergunta(perguntaRes.data);
 
-        const categoriaRes = await api.get<Categoria>(`/categories/${perguntaRes.data.category_id}`);
+        const categoriaRes = await api.get<Categoria>(
+          `/categories/${perguntaRes.data.category_id}`
+        );
         setCategoria(categoriaRes.data.name);
       } catch (error) {
         console.error("Erro ao buscar dados da pergunta ou categoria:", error);
@@ -42,7 +44,7 @@ const PerguntaCompleta: React.FC = () => {
   if (!pergunta) {
     return (
       <div>
-        <Navbar/>
+        <Navbar />
         <p>Carregando pergunta...</p>
       </div>
     );
@@ -50,7 +52,7 @@ const PerguntaCompleta: React.FC = () => {
 
   return (
     <div>
-      <Navbar/>
+      <Navbar />
       <div className="pergunta-completa-container">
         <h1 className="pergunta-titulo">{pergunta.title}</h1>
         <p className="pergunta-categoria">

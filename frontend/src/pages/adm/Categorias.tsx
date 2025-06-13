@@ -1,28 +1,26 @@
 import React, { useEffect, useState } from "react";
 import { Table } from "reactstrap";
-import { Button } from "@mui/material"
+import { Button } from "@mui/material";
 
 import NavbarAdm from "../../components/NavbarAdm";
 import CriarCategoria from "../../components/CriarCategoria";
 import EditarCategoria from "../../components/EditarCategoria";
-import api from "../../services/api";
 import { FaEdit, FaTrash } from "react-icons/fa";
 
-interface Categoria {
-  id: number;
-  name: string;
-}
+import { useFaqService } from "@contexts/FaqServiceContext";
+import { Category } from "types/faqTypes";
 
 const Categorias: React.FC = () => {
-  const [categorias, setCategorias] = useState<Categoria[]>([]);
+  const faqService = useFaqService();
+  const [categorias, setCategorias] = useState<Category[]>([]);
   const [categoriaSelecionada, setCategoriaSelecionada] =
-    useState<Categoria | null>(null);
+    useState<Category | null>(null);
   const [isEditOpen, setIsEditOpen] = useState(false);
 
   const fetchCategorias = async () => {
     try {
-      const response = await api.get<Categoria[]>("/categories");
-      setCategorias(response.data);
+      const data = await faqService.getCategories();
+      setCategorias(data);
     } catch (error) {
       console.error("Erro ao buscar categorias:", error);
     }
@@ -32,22 +30,20 @@ const Categorias: React.FC = () => {
     fetchCategorias();
   }, []);
 
-  const handleEdit = (categoria: Categoria) => {
+  const handleEdit = (categoria: Category) => {
     setCategoriaSelecionada(categoria);
     setIsEditOpen(true);
   };
 
   const handleDelete = async (id: number) => {
     try {
-      await api.delete(`/categories/${id}`);
+      await faqService.deleteCategory(id);
       setCategorias(categorias.filter((c) => c.id !== id));
       alert("Categoria deletada com sucesso!");
     } catch (error: any) {
       const msg = error?.response?.data?.error || "Erro ao deletar categoria";
       alert(msg);
     }
-
-    
   };
 
   return (
