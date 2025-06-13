@@ -12,10 +12,34 @@ export class CategoryController {
   create = async (req: Request, res: Response): Promise<void> => {
     try {
       const { name } = req.body;
+      if (!name || typeof name !== "string" || name.trim() === "") {
+        res.status(400).json({
+          success: false,
+          message: "O nome da categoria é obrigatório.",
+        });
+        return;
+      }
       const category = await this.categoryService.createCategory(name);
-      res.status(201).json(category);
+      res.status(201).json({
+        success: true,
+        message: "Categoria criada com sucesso!",
+        category: category,
+      });
     } catch (error: any) {
-      res.status(500).json({ error: error.message });
+      if (error.code === "23505") {
+        res.status(409).json({
+          success: false,
+          message: `A categoria '${req.body.name}' já existe. Por favor, escolha outro nome.`,
+        });
+      } else {
+        console.error("Erro inesperado ao criar categoria:", error);
+        res
+          .status(500)
+          .json({
+            success: false,
+            message: "Ocorreu um erro ao criar a categoria.",
+          });
+      }
     }
   };
 
@@ -50,9 +74,11 @@ export class CategoryController {
         Number(id),
         name
       );
-      if (!updated){
-        res.status(404).json({ error: "Categoria não encontrada" });}
-    else {res.json(updated);}
+      if (!updated) {
+        res.status(404).json({ error: "Categoria não encontrada" });
+      } else {
+        res.json(updated);
+      }
     } catch (error: any) {
       res.status(500).json({ error: error.message });
     }
