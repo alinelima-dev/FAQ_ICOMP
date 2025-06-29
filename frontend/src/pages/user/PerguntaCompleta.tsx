@@ -2,44 +2,35 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "reactstrap";
 import Navbar from "../../components/Navbar";
-import api from "../../services/api";
 import "./css/PerguntaCompleta.css";
-
-interface Pergunta {
-  id: number;
-  title: string;
-  content: string;
-  category_id: number;
-}
-
-interface Categoria {
-  id: number;
-  name: string;
-}
+import { useFaqService } from "@contexts/FaqServiceContext";
+import { Question } from "types/faqTypes";
 
 const PerguntaCompleta: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const [pergunta, setPergunta] = useState<Pergunta | null>(null);
+  const [pergunta, setPergunta] = useState<Question | null>(null);
   const [categoria, setCategoria] = useState<string>("");
   const navigate = useNavigate();
+  const faqService = useFaqService();
 
   useEffect(() => {
-    const fetchPergunta = async () => {
+    const fetchData = async () => {
+      if (!id) return;
       try {
-        const perguntaRes = await api.get<Pergunta>(`/questions/${id}`);
-        setPergunta(perguntaRes.data);
+        const perguntaData = await faqService.getQuestionById(Number(id));
+        setPergunta(perguntaData);
 
-        const categoriaRes = await api.get<Categoria>(
-          `/categories/${perguntaRes.data.category_id}`
+        const categoriaData = await faqService.getCategoryById(
+          perguntaData.category_id
         );
-        setCategoria(categoriaRes.data.name);
+        setCategoria(categoriaData.name);
       } catch (error) {
         console.error("Erro ao buscar dados da pergunta ou categoria:", error);
       }
     };
 
-    fetchPergunta();
-  }, [id]);
+    fetchData();
+  }, [id, faqService]);
 
   if (!pergunta) {
     return (

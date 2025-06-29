@@ -1,17 +1,14 @@
-import React, { useState } from "react";
-import api from "../services/api";
+import React from "react";
 import CategoriaModal from "./CategoriaPopup";
-import { Alert, Box, Snackbar } from "@mui/material";
-
-interface Categoria {
-  id: number;
-  name: string;
-}
+import { Box } from "@mui/material";
+import { useSnackbar } from "@contexts/SnackbarContext";
+import { useFaqService } from "@contexts/FaqServiceContext";
+import { Category } from "types/faqTypes";
 
 interface EditarCategoriaProps {
   isOpen: boolean;
   onClose: () => void;
-  categoria: Categoria;
+  categoria: Category;
   onCategoriaEditada: () => void;
 }
 
@@ -21,30 +18,19 @@ const EditarCategoria: React.FC<EditarCategoriaProps> = ({
   categoria,
   onCategoriaEditada,
 }) => {
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState("");
-  const [snackbarSeverity, setSnackbarSeverity] = useState<"success" | "error">(
-    "success"
-  );
+  const { showSnackbar } = useSnackbar();
+  const faqService = useFaqService();
 
-  const handleSnackbarClose = () => {
-    setSnackbarOpen(false);
-  };
-
-  const handleSubmit = async (nome: string) => {
+  const handleSubmit = async (newName: string) => {
     try {
-      await api.put(`/categories/${categoria.id}`, { name: nome });
+      await faqService.updateCategory(Number(categoria.id), { name: newName });
 
-      setSnackbarMessage("Categoria editada com sucesso!");
-      setSnackbarSeverity("success");
-      setSnackbarOpen(true);
+      showSnackbar("Categoria editada com sucesso.", "success");
 
       onCategoriaEditada();
       onClose();
     } catch (error) {
-      setSnackbarMessage("Erro ao editar a categoria.");
-      setSnackbarSeverity("error");
-      setSnackbarOpen(true);
+      showSnackbar("Erro ao editar categoria.", "error");
     }
   };
 
@@ -57,21 +43,6 @@ const EditarCategoria: React.FC<EditarCategoriaProps> = ({
         initialValue={categoria.name}
         titulo="Editar Categoria"
       />
-
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={3000}
-        onClose={handleSnackbarClose}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
-      >
-        <Alert
-          onClose={handleSnackbarClose}
-          severity={snackbarSeverity}
-          sx={{ width: "100%" }}
-        >
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>
     </Box>
   );
 };

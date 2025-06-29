@@ -4,16 +4,14 @@ import { FaEdit, FaTrash } from "react-icons/fa";
 import { MdAddCircle } from "react-icons/md";
 import { Button } from "@mui/material";
 import NavbarAdm from "../../components/NavbarAdm";
-import api from "../../services/api";
 import "./css/perguntas.css";
-import CriarPergunta from "../adm/CriarPergunta";
-import EditarPergunta from "../adm/EditarPergunta";
 import { useFaqService } from "@contexts/FaqServiceContext";
 import ConfirmarExclusao from "@components/Dialogs/ConfirmarExclusão";
 import CriarPerguntaDialog from "@components/Dialogs/CriarPerguntaDialog";
 import EditarPerguntaDialog from "@components/Dialogs/EditarPerguntaDialog";
 
 import { Question, Category } from "types/faqTypes";
+import { useSnackbar } from "@contexts/SnackbarContext";
 
 const Perguntas: React.FC = () => {
   const faqService = useFaqService();
@@ -24,12 +22,12 @@ const Perguntas: React.FC = () => {
   const [perguntaParaExcluir, setPerguntaParaExcluir] =
     useState<Question | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
-  const [mostrarCriarPergunta, setMostrarCriarPergunta] = useState(false);
   const [openCriar, setOpenCriar] = useState(false);
   const [openEditar, setOpenEditar] = useState(false);
-  const [mostrarEditarPergunta, setMostrarEditarPergunta] = useState(false);
   const [perguntaSelecionada, setPerguntaSelecionada] =
     useState<Question | null>(null);
+
+  const { showSnackbar } = useSnackbar();
 
   const fetchPerguntas = async () => {
     try {
@@ -71,9 +69,9 @@ const Perguntas: React.FC = () => {
       await faqService.deleteQuestion(perguntaParaExcluir.id);
       setPerguntas(perguntas.filter((p) => p.id !== perguntaParaExcluir.id));
       closeModal();
-      alert("Pergunta deletada com sucesso!");
+      showSnackbar("Pergunta deletada com sucesso!", "success");
     } catch (error) {
-      alert("Erro ao deletar a pergunta.");
+      showSnackbar("Erro ao deletar a pergunta.", "error");
       console.error(error);
     }
   };
@@ -203,31 +201,6 @@ const Perguntas: React.FC = () => {
         onConfirm={handleDelete}
         onCancel={closeModal}
       />
-
-      {mostrarCriarPergunta && (
-        <CriarPergunta
-          onClose={() => setMostrarCriarPergunta(false)}
-          onPerguntaCriada={() => {
-            setMostrarCriarPergunta(false);
-            api
-              .get<Question[]>("/questions")
-              .then((res) => setPerguntas(res.data));
-          }}
-        />
-      )}
-
-      {mostrarEditarPergunta && perguntaSelecionada && (
-        <EditarPergunta
-          pergunta={perguntaSelecionada}
-          onClose={() => setMostrarEditarPergunta(false)}
-          onPerguntaEditada={() => {
-            setMostrarEditarPergunta(false);
-            api
-              .get<Question[]>("/questions/")
-              .then((res) => setPerguntas(res.data));
-          }}
-        />
-      )}
     </div>
   );
 };

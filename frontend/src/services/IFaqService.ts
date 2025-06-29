@@ -11,4 +11,6 @@ export interface IFaqService {
   deleteCategory(id: number): Promise<void>;
   getSuggestions(): Promise<Suggestion[]>;
   submitSuggestion(data: Partial<Suggestion>): Promise<void>;
+  getQuestionById(id: number): Promise<Question>;
+  getCategoryById(id: number): Promise<Category>;
 }

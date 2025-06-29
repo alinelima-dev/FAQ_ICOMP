@@ -1,12 +1,6 @@
 import React, { useEffect, useState } from "react";
-import {
-  Alert,
-  Box,
-  Button,
-  Snackbar,
-  TextField,
-  Typography,
-} from "@mui/material";
+import { Box, Button, TextField, Typography } from "@mui/material";
+import { useSnackbar } from "@contexts/SnackbarContext";
 
 interface CategoriaPopupProps {
   isOpen: boolean;
@@ -24,44 +18,29 @@ const CategoriaPopup: React.FC<CategoriaPopupProps> = ({
   titulo,
 }) => {
   const [nome, setNome] = useState("");
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState("");
-  const [snackbarSeverity, setSnackbarSeverity] = useState<
-    "success" | "error" | "info"
-  >("success");
 
   useEffect(() => {
     if (isOpen) {
       setNome(initialValue);
-      setSnackbarOpen(false);
-      setSnackbarMessage("");
     }
   }, [isOpen, initialValue]);
 
-  const handleSnackbarClose = () => {
-    setSnackbarOpen(false);
-  };
+  const { showSnackbar } = useSnackbar();
 
   const handleSave = async () => {
     if (!nome.trim()) {
-      setSnackbarMessage("O nome da categoria é obrigatório.");
-      setSnackbarSeverity("error");
-      setSnackbarOpen(true);
+      showSnackbar("O nome da categoria é obrigatório.", "error");
       return;
     }
 
     if (nome === initialValue) {
-      setSnackbarMessage("Nenhuma alteração foi feita.");
-      setSnackbarSeverity("info");
-      setSnackbarOpen(true);
+      showSnackbar("Nenhuma alteração foi feita.", "info");
       return;
     }
 
     try {
       await onSubmit(nome);
-      setSnackbarMessage("Categoria salva com sucesso.");
-      setSnackbarSeverity("success");
-      setSnackbarOpen(true);
+      showSnackbar("Categoria salva com sucesso.", "success");
       onClose();
     } catch (error: any) {
       console.error("Erro ao salvar categoria no frontend:", error);
@@ -74,89 +53,69 @@ const CategoriaPopup: React.FC<CategoriaPopupProps> = ({
         errorMessage = error.message;
       }
 
-      setSnackbarMessage(errorMessage);
-      setSnackbarSeverity("error");
-      setSnackbarOpen(true);
+      showSnackbar(errorMessage, "error");
     }
   };
 
   if (!isOpen) return null;
 
   return (
-    <>
+    <Box
+      sx={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        width: "100vw",
+        height: "100vh",
+        bgcolor: "rgba(0, 0, 0, 0.5)",
+        zIndex: 1300,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
       <Box
         sx={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          width: "100vw",
-          height: "100vh",
-          bgcolor: "rgba(0, 0, 0, 0.5)",
-          zIndex: 1300,
+          bgcolor: "background.paper",
+          p: 4,
+          borderRadius: 2,
+          boxShadow: 24,
+          width: "90%",
+          maxWidth: 400,
           display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
+          flexDirection: "column",
+          gap: 2,
         }}
       >
+        <Typography variant="h6" textAlign="center">
+          {titulo}
+        </Typography>
+
+        <TextField
+          fullWidth
+          label="Nome da Categoria"
+          value={nome}
+          onChange={(e) => setNome(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && handleSave()}
+        />
+
         <Box
           sx={{
-            bgcolor: "background.paper",
-            p: 4,
-            borderRadius: 2,
-            boxShadow: 24,
-            width: "90%",
-            maxWidth: 400,
             display: "flex",
-            flexDirection: "column",
-            gap: 2,
+            justifyContent: "flex-end",
+            gap: 1,
+            mt: 2,
           }}
         >
-          <Typography variant="h6" textAlign="center">
-            {titulo}
-          </Typography>
-
-          <TextField
-            fullWidth
-            label="Nome da Categoria"
-            value={nome}
-            onChange={(e) => setNome(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleSave()}
-          />
-
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "flex-end",
-              gap: 1,
-              mt: 2,
-            }}
-          >
-            <Button variant="outlined" color="secondary" onClick={onClose}>
-              Cancelar
-            </Button>
-            <Button variant="contained" color="primary" onClick={handleSave}>
-              Salvar
-            </Button>
-          </Box>
+          <Button variant="outlined" color="secondary" onClick={onClose}>
+            Cancelar
+          </Button>
+          <Button variant="contained" color="primary" onClick={handleSave}>
+            Salvar
+          </Button>
         </Box>
       </Box>
-
-      {/* Snackbar */}
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={1500}
-        onClose={handleSnackbarClose}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
-      >
-        <Alert
-          onClose={handleSnackbarClose}
-          severity={snackbarSeverity}
-          sx={{ width: "100%" }}
-        >
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>
-    </>
+    </Box>
   );
 };
 

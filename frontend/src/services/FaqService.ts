@@ -29,6 +29,14 @@ export class FaqService implements IFaqService {
     await this.httpInstance.delete(`/questions/${id}`);
   }
 
+  public async getQuestionById(id: number): Promise<Question> {
+    return await this.httpInstance.get(`/questions/${id}`);
+  }
+
+  public async getCategoryById(id: number): Promise<Category> {
+    return await this.httpInstance.get(`/categories/${id}`);
+  }
+
   public async createCategory(data: Partial<Category>): Promise<void> {
     await this.httpInstance.post("/categories", data);
   }
