@@ -1,6 +1,3 @@
-// src/pages/ListarPerguntas.tsx
-import { useEffect, useState } from "react";
-import axios from "axios";
 import {
   Container,
   Grid,
@@ -11,53 +8,45 @@ import {
   CardActions,
   Box,
   CircularProgress,
+  Snackbar,
+  Alert,
 } from "@mui/material";
-import { Snackbar, Alert } from "@mui/material";
+import { Question } from "types/faqTypes";
 
-interface Pergunta {
-  titulo: string;
-  descricao: string;
+interface ListarPerguntasProps {
+  perguntas: Question[];
+  loading: boolean;
+  error?: string;
 }
 
-const [openSnackbar, setOpenSnackbar] = useState(false);
-const [snackbarMessage, setSnackbarMessage] = useState("");
-
-const ListarPerguntas = () => {
-  const [perguntas, setPerguntas] = useState<Pergunta[]>([]); // Definindo o tipo para perguntas
-
-  /* useEffect(() => {
-    axios
-      .get("http://localhost:3000/questions") // Substitua pela URL da sua API
-      .then((res) => setPerguntas(res.data))
-      .catch((err) => {
-        console.error("Erro ao buscar perguntas:", err);
-        setSnackbarMessage("Erro ao carregar as perguntas");
-        setOpenSnackbar(true);
-      });
-  }, []);*/
-
+const ListarPerguntas: React.FC<ListarPerguntasProps> = ({
+  perguntas,
+  loading,
+  error,
+}) => {
   return (
     <Container sx={{ mt: 4 }}>
       <Typography variant="h4" component="h1" gutterBottom>
         Perguntas Frequentes
       </Typography>
 
-      {/* Exibição do CircularProgress se não houver perguntas */}
-      {!perguntas.length ? (
+      {loading ? (
         <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
           <CircularProgress />
         </Box>
       ) : (
-        // Se houver perguntas, exibe o Grid de Cards
         <Grid container spacing={3}>
-          {perguntas.map((pergunta, idx) => (
-            <Grid item xs={12} sm={6} md={4} key={idx}>
-              {/* Card estilizado */}
+          {perguntas.map((pergunta) => (
+            <Grid item xs={12} sm={6} md={4} key={pergunta.id}>
               <Card
                 sx={{
                   boxShadow: 3,
                   borderRadius: 2,
                   background: "linear-gradient(135deg, #6a11cb, #2575fc)",
+                  height: "100%",
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "space-between",
                 }}
               >
                 <CardContent>
@@ -66,14 +55,30 @@ const ListarPerguntas = () => {
                     component="h2"
                     sx={{ fontWeight: "bold", color: "white" }}
                   >
-                    {pergunta.titulo}
+                    {pergunta.title}
                   </Typography>
-                  <Typography variant="body2" color="white" sx={{ mt: 2 }}>
-                    {pergunta.descricao}
-                  </Typography>
+                  <Typography
+                    variant="body2"
+                    color="white"
+                    sx={{
+                      mt: 2,
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      display: "-webkit-box",
+                      WebkitLineClamp: 3,
+                      WebkitBoxOrient: "vertical",
+                    }}
+                    dangerouslySetInnerHTML={{ __html: pergunta.content }}
+                  />
                 </CardContent>
                 <CardActions>
-                  <Button size="small" color="secondary">
+                  <Button
+                    size="small"
+                    color="secondary"
+                    onClick={() =>
+                      window.location.assign(`/pergunta/${pergunta.id}`)
+                    }
+                  >
                     Ver mais
                   </Button>
                 </CardActions>
@@ -83,17 +88,9 @@ const ListarPerguntas = () => {
         </Grid>
       )}
 
-      <Snackbar
-        open={openSnackbar}
-        autoHideDuration={6000}
-        onClose={() => setOpenSnackbar(false)}
-      >
-        <Alert
-          onClose={() => setOpenSnackbar(false)}
-          severity="error"
-          sx={{ width: "100%" }}
-        >
-          {snackbarMessage}
+      <Snackbar open={!!error} autoHideDuration={6000}>
+        <Alert severity="error" sx={{ width: "100%" }}>
+          {error}
         </Alert>
       </Snackbar>
     </Container>

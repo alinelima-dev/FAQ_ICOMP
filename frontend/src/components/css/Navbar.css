@@ -6,6 +6,7 @@
   height: 70px;
   background: rgb(2, 15, 132);
   padding: 15px 7%;
+  position: sticky;
 }
 .navbar h2 {
   margin: 0;

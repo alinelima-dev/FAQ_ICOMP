@@ -31,7 +31,11 @@ const CardPergunta: React.FC<CardPerguntaProps> = ({ id, title, content }) => {
       }}
     >
       <CardContent>
-        <Typography variant="h6" component="h2" sx={{ fontWeight: "bold", color: "white" }}>
+        <Typography
+          variant="h6"
+          component="h2"
+          sx={{ fontWeight: "bold", color: "white" }}
+        >
           {title}
         </Typography>
         <Typography

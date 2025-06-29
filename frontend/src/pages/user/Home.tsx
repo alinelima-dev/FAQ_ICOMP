@@ -1,37 +1,34 @@
 import React, { useState, useEffect } from "react";
-import { Input } from "reactstrap";
 import Navbar from "../../components/Navbar";
-import api from "../../services/api";
-import { Box, Grid, CircularProgress } from "@mui/material";
-import "./css/Home.css";
+import {
+  Box,
+  Grid,
+  CircularProgress,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+} from "@mui/material";
 import CardPergunta from "../../components/CardPergunta";
-
-interface Pergunta {
-  id: number;
-  title: string;
-  content: string;
-  category_id: number;
-}
-
-interface Categoria {
-  id: number;
-  name: string;
-}
+import { Category, Question } from "types/faqTypes";
+import { useFaqService } from "@contexts/FaqServiceContext";
 
 const Home: React.FC = () => {
-  const [perguntas, setPerguntas] = useState<Pergunta[]>([]);
-  const [categorias, setCategorias] = useState<Categoria[]>([]);
+  const [perguntas, setPerguntas] = useState<Question[]>([]);
+  const [categorias, setCategorias] = useState<Category[]>([]);
   const [categoriaSelecionada, setCategoriaSelecionada] = useState("None");
   const [pesquisa, setPesquisa] = useState("");
   const [loading, setLoading] = useState(true);
 
+  const faqService = useFaqService();
+
   useEffect(() => {
     const fetchAll = async () => {
       try {
-        const perguntasRes = await api.get<Pergunta[]>("/questions");
-        const categoriasRes = await api.get<Categoria[]>("/categories");
-        setPerguntas(perguntasRes.data);
-        setCategorias(categoriasRes.data);
+        const perguntasRes = await faqService.getQuestions();
+        const categoriasRes = await faqService.getCategories();
+        setPerguntas(perguntasRes);
+        setCategorias(categoriasRes);
       } catch (error) {
         console.error("Erro ao buscar dados:", error);
       } finally {
@@ -57,20 +54,34 @@ const Home: React.FC = () => {
       <Navbar onSearch={setPesquisa} />
 
       {/* Filtros */}
-      <Box sx={{ display: "flex", justifyContent: "center", my: 3 }}>
-        <Input
-          type="select"
-          value={categoriaSelecionada}
-          onChange={(e) => setCategoriaSelecionada(e.target.value)}
-          style={{ width: "300px" }}
-        >
-          <option value="None">Todas as Categorias</option>
-          {categorias.map((categoria) => (
-            <option key={categoria.id} value={categoria.id}>
-              {categoria.name}
-            </option>
-          ))}
-        </Input>
+      <Box sx={{ display: "flex", justifyContent: "center", my: 3, gap: 2 }}>
+        <FormControl sx={{ minWidth: 300 }}>
+          <InputLabel sx={{ pb: 4 }} id="categoria-label">
+            Categoria
+          </InputLabel>
+          <Select
+            labelId="categoria-label"
+            value={categoriaSelecionada}
+            onChange={(e) => setCategoriaSelecionada(e.target.value)}
+            label="Categoria"
+            sx={{
+              borderRadius: 2,
+              fontSize: 16,
+              backgroundColor: "#fff",
+            }}
+          >
+            <MenuItem value="None">Todas as Categorias</MenuItem>
+            {categorias
+              .filter((categoria) =>
+                perguntas.some((p) => p.category_id === categoria.id)
+              )
+              .map((categoria) => (
+                <MenuItem key={categoria.id} value={categoria.id}>
+                  {categoria.name}
+                </MenuItem>
+              ))}
+          </Select>
+        </FormControl>
       </Box>
 
       {/* Loader ou cards */}
