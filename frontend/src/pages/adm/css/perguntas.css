@@ -151,3 +151,66 @@
   width: 90%;
 }
 
+@media (max-width: 768px) {
+  .container {
+    padding: 30px 15px;
+  }
+
+  .perguntas-header h2 {
+    font-size: 1.5rem;
+    text-align: center;
+    margin-bottom: 16px;
+  }
+
+  .filters-container {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .filter {
+    width: 100%;
+  }
+
+  .button-container {
+    justify-content: center;
+    margin-top: 10px;
+  }
+
+  .search-bar,
+  .dropdown-filter {
+    font-size: 15px;
+    padding: 8px;
+  }
+
+  .custom-table th,
+  .custom-table td {
+    font-size: 14px;
+    padding: 10px;
+  }
+
+  .actionButton {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .actionButton button {
+    justify-content: center;
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .perguntas-header h2 {
+    font-size: 1.3rem;
+  }
+
+  .container {
+    padding: 20px 10px;
+  }
+
+  .custom-table th,
+  .custom-table td {
+    font-size: 13px;
+    padding: 8px;
+  }
+}

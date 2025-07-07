@@ -1,11 +1,10 @@
 const appConfig = {
   api: {
-    url: "http://localhost:3002/api", // URL base da sua API
-    timeout: 10000, // Timeout padrão das requisições (em milissegundos)
+    url: import.meta.env.VITE_API_URL, //URL base da API
+    timeout: 10000,
   },
-  // Outras configurações da aplicação podem ser adicionadas aqui
   appName: "FAQIcomp",
-  environment: process.env.NODE_ENV || "development",
+  environment: import.meta.env.MODE || "development",
 };
 
 export default appConfig;

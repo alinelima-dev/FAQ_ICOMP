@@ -33,3 +33,9 @@
     animation: scaleIn 0.3s ease;
     text-align: center;
   }
+
+  @media (max-width: 600px) {
+  .criar-pergunta-container button {
+    width: 100% !important;
+  }
+}

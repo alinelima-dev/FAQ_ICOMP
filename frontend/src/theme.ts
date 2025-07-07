@@ -1,18 +1,17 @@
-// src/theme.ts
-import { createTheme } from '@mui/material/styles';
+import { createTheme } from "@mui/material/styles";
 
 const theme = createTheme({
   palette: {
-    mode: 'light', // troque para 'dark' se quiser modo escuro
+    mode: "light", //'dark' se quiser modo escuro
     primary: {
-      main: '#1976d2',
+      main: "#1976d2",
     },
     secondary: {
-      main: '#ff4081',
+      main: "#ff4081",
     },
   },
   typography: {
-    fontFamily: 'Roboto, Arial, sans-serif',
+    fontFamily: "Roboto, Arial, sans-serif",
   },
 });
 

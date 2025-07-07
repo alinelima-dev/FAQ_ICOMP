@@ -16,7 +16,7 @@ const Navbar: React.FC<NavbarProps> = ({ onSearch }) => {
           placeholder="Pesquise aqui."
           onChange={(e) => onSearch?.(e.target.value)}
         />
-        <BiSearchAlt2 />
+        <BiSearchAlt2 color="blue" />
       </div>
     </div>
   );

@@ -9,6 +9,7 @@ import { FaEdit, FaTrash } from "react-icons/fa";
 
 import { useFaqService } from "@contexts/FaqServiceContext";
 import { Category } from "types/faqTypes";
+import { useSnackbar } from "@contexts/SnackbarContext";
 
 const Categorias: React.FC = () => {
   const faqService = useFaqService();
@@ -16,6 +17,8 @@ const Categorias: React.FC = () => {
   const [categoriaSelecionada, setCategoriaSelecionada] =
     useState<Category | null>(null);
   const [isEditOpen, setIsEditOpen] = useState(false);
+
+  const { showSnackbar } = useSnackbar();
 
   const fetchCategorias = async () => {
     try {
@@ -39,10 +42,10 @@ const Categorias: React.FC = () => {
     try {
       await faqService.deleteCategory(id);
       setCategorias(categorias.filter((c) => c.id !== id));
-      alert("Categoria deletada com sucesso!");
+      showSnackbar("Categoria deletada com sucesso.", "success");
     } catch (error: any) {
-      const msg = error?.response?.data?.error || "Erro ao deletar categoria";
-      alert(msg);
+      const msg = error?.message || "Erro ao deletar categoria";
+      showSnackbar(msg, "error");
     }
   };
 

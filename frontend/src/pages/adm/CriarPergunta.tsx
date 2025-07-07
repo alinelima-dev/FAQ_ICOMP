@@ -140,7 +140,16 @@ const CriarPergunta: React.FC<CriarPerguntaProps> = ({
           )}
         </Box>
 
-        <Box display="flex" justifyContent="space-between">
+        <Box
+          display="flex"
+          justifyContent="space-between"
+          flexWrap="wrap"
+          gap={2}
+          sx={{
+            flexDirection: { xs: "column", sm: "row" },
+            alignItems: { xs: "stretch", sm: "center" },
+          }}
+        >
           <FormControl fullWidth error={!!errors.categoria}>
             <InputLabel>Categoria</InputLabel>
             <Select
@@ -163,11 +172,24 @@ const CriarPergunta: React.FC<CriarPerguntaProps> = ({
           </FormControl>
         </Box>
 
-        <Box display="flex" justifyContent="space-between">
-          <CriarCategoria onCategoriaCriada={fetchCategorias} />
+        <Box
+          display="flex"
+          flexWrap="wrap"
+          gap={2}
+          sx={{
+            flexDirection: { xs: "column", sm: "row" },
+            alignItems: "stretch",
+            justifyContent: { xs: "center", sm: "space-between" },
+          }}
+        >
+          <Box sx={{ width: { xs: "100%", sm: "auto" } }}>
+            <CriarCategoria onCategoriaCriada={fetchCategorias} />
+          </Box>
           <Button
             variant="contained"
             color="success"
+            fullWidth
+            sx={{ width: { xs: "100%", sm: "auto" } }}
             onClick={handleSave}
             disabled={isSubmitting}
           >

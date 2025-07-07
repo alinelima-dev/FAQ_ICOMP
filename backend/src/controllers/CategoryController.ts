@@ -33,12 +33,10 @@ export class CategoryController {
         });
       } else {
         console.error("Erro inesperado ao criar categoria:", error);
-        res
-          .status(500)
-          .json({
-            success: false,
-            message: "Ocorreu um erro ao criar a categoria.",
-          });
+        res.status(500).json({
+          success: false,
+          message: "Ocorreu um erro ao criar a categoria.",
+        });
       }
     }
   };
@@ -80,7 +78,18 @@ export class CategoryController {
         res.json(updated);
       }
     } catch (error: any) {
-      res.status(500).json({ error: error.message });
+      if (error.code === "23505") {
+        res.status(409).json({
+          success: false,
+          message: `A categoria '${req.body.name}' já existe. Por favor, escolha outro nome.`,
+        });
+      } else {
+        console.error(
+          `Erro ao atualizar categoria com ID ${req.params.id}:`,
+          error
+        );
+        res.status(500).json({ error: error.message });
+      }
     }
   };
 
@@ -88,9 +97,18 @@ export class CategoryController {
     try {
       const { id } = req.params;
       const result = await this.categoryService.deleteCategory(Number(id));
-      res.json(result);
+      res.status(200).json(result);
     } catch (error: any) {
-      res.status(500).json({ error: error.message });
+      if (
+        error.message ===
+        "Não é possível excluir esta categoria porque ela possui perguntas associadas."
+      ) {
+        res.status(409).json({ error: error.message });
+      } else {
+        res
+          .status(500)
+          .json({ error: "Erro interno do servidor ao deletar categoria" });
+      }
     }
   };
 }
