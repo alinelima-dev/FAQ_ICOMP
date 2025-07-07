@@ -1,10 +1,10 @@
-// AuthContext.tsx
 import React, { createContext, useState, useContext, ReactNode } from "react";
 import { login as loginService } from "../services/authService";
 import axios from "axios";
 
 interface AuthContextType {
   token: string | null;
+  usuario: string | null;
   login: (usuario: string, senha: string) => Promise<void>;
   logout: () => void;
 }
@@ -17,21 +17,33 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   const [token, setToken] = useState<string | null>(
     localStorage.getItem("token")
   );
+  const [usuario, setUsuario] = useState<string | null>(
+    localStorage.getItem("usuario")
+  );
 
   const login = async (usuario: string, senha: string) => {
-    const token = await loginService(usuario, senha); // Chama o serviço de login
-    setToken(token); // Armazena o token no estado
-    axios.defaults.headers["Authorization"] = `Bearer ${token}`; // Adiciona o token no header para futuras requisições
+    const token = await loginService(usuario, senha);
+    setToken(token);
+    setUsuario(usuario); // salva usuário no estado
+
+    localStorage.setItem("token", token);
+    localStorage.setItem("usuario", usuario);
+
+    axios.defaults.headers["Authorization"] = `Bearer ${token}`;
   };
 
   const logout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("usuario");
+
     setToken(null);
-    delete axios.defaults.headers["Authorization"]; // Remove o token do header
+    setUsuario(null);
+
+    delete axios.defaults.headers["Authorization"];
   };
 
   return (
-    <AuthContext.Provider value={{ token, login, logout }}>
+    <AuthContext.Provider value={{ token, usuario, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

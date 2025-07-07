@@ -3,4 +3,7 @@ export const Types = {
   Faq: {
     IFaqService: Symbol.for("IFaqService"),
   },
+  User: {
+    IUserService: Symbol.for("IUserService"),
+  },
 };

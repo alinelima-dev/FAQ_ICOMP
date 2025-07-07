@@ -1,4 +1,3 @@
-// src/modules/http/implementations/AxiosHttpService.ts
 import Axios, { AxiosError, AxiosInstance } from "axios";
 import { injectable } from "inversify";
 
@@ -15,6 +14,10 @@ export default class AxiosHttpService implements IHttpService {
       timeout: appConfig.api.timeout,
       baseURL: appConfig.api.url,
     });
+    const token = localStorage.getItem("token");
+    if (token) {
+      this.setAuthorization(`Bearer ${token}`);
+    }
   }
 
   setTokenExpirationStrategy(
@@ -56,9 +59,13 @@ export default class AxiosHttpService implements IHttpService {
       });
       return data;
     } catch (error: unknown) {
-      const axiosError = error as AxiosError<{ message?: string }>;
+      const axiosError = error as AxiosError<{
+        message?: string;
+        error?: string;
+      }>;
 
       const message =
+        axiosError.response?.data?.error ??
         axiosError.response?.data?.message ??
         axiosError.message ??
         "Erro inesperado na requisição.";

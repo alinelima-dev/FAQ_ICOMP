@@ -1,48 +1,138 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../contexts/AuthContext";
 import {
-  FaSignOutAlt,
+  AppBar,
+  Toolbar,
+  Typography,
+  IconButton,
+  Drawer,
+  List,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Box,
+  Divider,
+  Button,
+  useTheme,
+} from "@mui/material";
+import {
+  FaBars,
   FaQuestionCircle,
   FaClipboardList,
+  FaSignOutAlt,
+  FaPen,
 } from "react-icons/fa";
-import "./css/NavbarAdm.css";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 
 const NavbarAdm: React.FC = () => {
-  const { token, logout } = useAuth();
+  const [open, setOpen] = useState(false);
+  const { logout } = useAuth();
   const navigate = useNavigate();
-  const [isOpen, setIsOpen] = useState(false);
-
-  const toggle = () => setIsOpen(!isOpen);
+  const location = useLocation();
+  const theme = useTheme();
 
   const handleLogout = () => {
     logout();
     navigate("/login");
   };
 
+  const isInPerguntas = location.pathname.includes("/adm/perguntas");
+  const isInCategorias = location.pathname.includes("/adm/categorias");
+
+  const toggleDrawer = (state: boolean) => () => setOpen(state);
+
   return (
-    <div className="navbar">
-      <div className="navbar-header">
-        <h2 className="navbar-brand">
-          FAQIcomp • <span className="admin-text">Admin</span>
-        </h2>
-      </div>
-      <div className="navbar-actions">
-        {token && (
-          <div className="nav-buttons">
-            <Link className="nav-button" to="/adm/perguntas">
-              <FaQuestionCircle /> Perguntas
-            </Link>
-            <Link className="nav-button" to="/adm/categorias">
-              <FaClipboardList /> Categorias
-            </Link>
-            <button className="nav-button logout-button" onClick={handleLogout}>
-              <FaSignOutAlt /> Sair
-            </button>
-          </div>
-        )}
-      </div>
-    </div>
+    <>
+      {/* AppBar superior */}
+      <AppBar position="static" sx={{ backgroundColor: "#1e3a8a", px: 2 }}>
+        <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
+          <Box display="flex" alignItems="center" gap={2}>
+            <IconButton
+              color="inherit"
+              edge="start"
+              onClick={toggleDrawer(true)}
+            >
+              <FaBars />
+            </IconButton>
+            <Typography variant="h6" sx={{ fontWeight: 600 }}>
+              FAQIcomp •{" "}
+              <Box component="span" sx={{ color: "#ffd700", fontWeight: 400 }}>
+                Admin
+              </Box>
+            </Typography>
+          </Box>
+
+          <Button
+            color="error"
+            startIcon={<FaSignOutAlt />}
+            onClick={handleLogout}
+          />
+        </Toolbar>
+      </AppBar>
+
+      {/* Drawer lateral */}
+      <Drawer anchor="left" open={open} onClose={toggleDrawer(false)}>
+        <Box
+          sx={{
+            width: 250,
+            height: "100%",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "space-between",
+          }}
+          role="presentation"
+          onClick={toggleDrawer(false)}
+        >
+          <Box>
+            <Typography
+              variant="h6"
+              sx={{ p: 2, fontWeight: 600, color: "#1e3a8a" }}
+            >
+              Menu Admin
+            </Typography>
+            <Divider />
+            <List>
+              {!isInPerguntas && (
+                <ListItemButton onClick={() => navigate("/adm/perguntas")}>
+                  <ListItemIcon>
+                    <FaQuestionCircle />
+                  </ListItemIcon>
+                  <ListItemText primary="Perguntas" />
+                </ListItemButton>
+              )}
+
+              {!isInCategorias && (
+                <ListItemButton onClick={() => navigate("/adm/categorias")}>
+                  <ListItemIcon>
+                    <FaClipboardList />
+                  </ListItemIcon>
+                  <ListItemText primary="Categorias" />
+                </ListItemButton>
+              )}
+
+              <ListItemButton onClick={() => navigate("/trocar-senha")}>
+                <ListItemIcon>
+                  <FaPen />
+                </ListItemIcon>
+                <ListItemText primary="Atualizar Senha" />
+              </ListItemButton>
+            </List>
+          </Box>
+
+          <Box sx={{ p: 2 }}>
+            <Button
+              fullWidth
+              color="error"
+              variant="contained"
+              startIcon={<FaSignOutAlt />}
+              onClick={handleLogout}
+            >
+              Sair
+            </Button>
+          </Box>
+        </Box>
+      </Drawer>
+    </>
   );
 };
 
