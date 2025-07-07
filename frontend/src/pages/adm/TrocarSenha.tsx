@@ -5,6 +5,7 @@ import { Form, FormGroup, Button, Input, Label, Alert } from "reactstrap";
 import { useUserContext } from "@contexts/UserContext";
 import { useSnackbar } from "@contexts/SnackbarContext";
 import bcrypt from "bcryptjs";
+import { GenericMessage, SnackbarMessage } from "@locales/locale";
 
 const TrocarSenha: React.FC = () => {
   const [usuario, setUsuario] = useState("");
@@ -32,7 +33,7 @@ const TrocarSenha: React.FC = () => {
     e.preventDefault();
 
     if (newPassword !== confirmPassword) {
-      showSnackbar("As senhas não coincidem.", "warning");
+      showSnackbar(SnackbarMessage.changePasswordNoMatch, "warning");
       return;
     }
 
@@ -42,7 +43,7 @@ const TrocarSenha: React.FC = () => {
         currentPassword,
         newPassword,
       });
-      showSnackbar("Senha atualizada com sucesso.", "success");
+      showSnackbar(SnackbarMessage.changePasswordSucess, "success");
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
@@ -51,7 +52,8 @@ const TrocarSenha: React.FC = () => {
         navigate("/adm/perguntas");
       }, 2000);*/
     } catch (error: any) {
-      const msg = error?.response?.data?.error || "Erro ao atualizar a senha.";
+      const msg =
+        error?.response?.data?.error || SnackbarMessage.changePasswordError;
       showSnackbar(msg, "error");
     }
   };
@@ -59,7 +61,7 @@ const TrocarSenha: React.FC = () => {
   return (
     <div className="login-container">
       <Form className="centered-form" onSubmit={handleSubmit}>
-        <h2>Alterar Senha</h2>
+        <h2>{GenericMessage.changePasswordTitle}</h2>
 
         <FormGroup>
           <Label for="usuario">Usuário</Label>

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Box, Button, TextField, Typography } from "@mui/material";
 import { useSnackbar } from "@contexts/SnackbarContext";
+import { SnackbarMessage } from "@locales/locale";
 
 interface CategoriaPopupProps {
   isOpen: boolean;
@@ -29,18 +30,18 @@ const CategoriaPopup: React.FC<CategoriaPopupProps> = ({
 
   const handleSave = async () => {
     if (!nome.trim()) {
-      showSnackbar("O nome da categoria é obrigatório.", "error");
+      showSnackbar(SnackbarMessage.mandatoryCategory, "error");
       return;
     }
 
     if (nome === initialValue) {
-      showSnackbar("Nenhuma alteração foi feita.", "info");
+      showSnackbar(SnackbarMessage.noChanges, "info");
       return;
     }
 
     try {
       await onSubmit(nome);
-      showSnackbar("Categoria salva com sucesso.", "success");
+      showSnackbar(SnackbarMessage.savedCategory, "success");
       onClose();
     } catch (error: any) {
       console.error("Erro ao salvar categoria no frontend:", error);

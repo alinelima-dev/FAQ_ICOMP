@@ -10,6 +10,7 @@ import { FaEdit, FaTrash } from "react-icons/fa";
 import { useFaqService } from "@contexts/FaqServiceContext";
 import { Category } from "types/faqTypes";
 import { useSnackbar } from "@contexts/SnackbarContext";
+import { GenericMessage, SnackbarMessage } from "@locales/locale";
 
 const Categorias: React.FC = () => {
   const faqService = useFaqService();
@@ -42,9 +43,9 @@ const Categorias: React.FC = () => {
     try {
       await faqService.deleteCategory(id);
       setCategorias(categorias.filter((c) => c.id !== id));
-      showSnackbar("Categoria deletada com sucesso.", "success");
+      showSnackbar(SnackbarMessage.deletedCategory, "success");
     } catch (error: any) {
-      const msg = error?.message || "Erro ao deletar categoria";
+      const msg = error?.message || SnackbarMessage.errorDeleteCategory;
       showSnackbar(msg, "error");
     }
   };
@@ -54,7 +55,7 @@ const Categorias: React.FC = () => {
       <NavbarAdm />
       <div className="container">
         <div className="categorias-header">
-          <h2>Categorias</h2>
+          <h2>{GenericMessage.categoryTitle}</h2>
           <CriarCategoria onCategoriaCriada={fetchCategorias} />
         </div>
         <Table striped hover responsive className="custom-table">

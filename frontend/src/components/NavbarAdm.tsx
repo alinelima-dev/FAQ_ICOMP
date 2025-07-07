@@ -23,6 +23,7 @@ import {
 } from "react-icons/fa";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import { GenericMessage } from "@locales/locale";
 
 const NavbarAdm: React.FC = () => {
   const [open, setOpen] = useState(false);
@@ -88,7 +89,7 @@ const NavbarAdm: React.FC = () => {
               variant="h6"
               sx={{ p: 2, fontWeight: 600, color: "#1e3a8a" }}
             >
-              Menu Admin
+              {GenericMessage.menuTitle}
             </Typography>
             <Divider />
             <List>

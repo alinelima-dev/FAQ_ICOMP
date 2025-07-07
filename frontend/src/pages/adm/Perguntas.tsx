@@ -12,6 +12,7 @@ import EditarPerguntaDialog from "@components/Dialogs/EditarPerguntaDialog";
 
 import { Question, Category } from "types/faqTypes";
 import { useSnackbar } from "@contexts/SnackbarContext";
+import { GenericMessage, SnackbarMessage } from "@locales/locale";
 
 const Perguntas: React.FC = () => {
   const faqService = useFaqService();
@@ -69,9 +70,9 @@ const Perguntas: React.FC = () => {
       await faqService.deleteQuestion(perguntaParaExcluir.id);
       setPerguntas(perguntas.filter((p) => p.id !== perguntaParaExcluir.id));
       closeModal();
-      showSnackbar("Pergunta deletada com sucesso!", "success");
+      showSnackbar(SnackbarMessage.deletedQuestion, "success");
     } catch (error) {
-      showSnackbar("Erro ao deletar a pergunta.", "error");
+      showSnackbar(SnackbarMessage.errorDeleteQuestion, "error");
       console.error(error);
     }
   };
@@ -91,7 +92,7 @@ const Perguntas: React.FC = () => {
       <NavbarAdm />
       <div className="container">
         <div className="perguntas-header">
-          <h2>Perguntas</h2>
+          <h2>{GenericMessage.questionTitle}</h2>
         </div>
 
         <div className="filters-container">

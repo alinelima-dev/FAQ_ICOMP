@@ -7,6 +7,7 @@ import {
   Button,
   Typography,
 } from "@mui/material";
+import { GenericMessage } from "@locales/locale";
 
 interface ConfirmarExclusaoDialogProps {
   open: boolean;
@@ -23,7 +24,7 @@ const ConfirmarExclusao: React.FC<ConfirmarExclusaoDialogProps> = ({
 }) => {
   return (
     <Dialog open={open} onClose={onCancel} maxWidth="sm" fullWidth>
-      <DialogTitle>Confirmar Exclusão</DialogTitle>
+      <DialogTitle>{GenericMessage.confirmExcludMessage}</DialogTitle>
       <DialogContent>
         <Typography>
           Tem certeza que deseja excluir a pergunta

@@ -20,6 +20,7 @@ import "react-quill/dist/quill.snow.css";
 
 import { Category, Question } from "types/faqTypes";
 import { useFaqService } from "@contexts/FaqServiceContext";
+import { GenericMessage } from "@locales/locale";
 
 interface EditarPerguntaProps {
   pergunta: Question;
@@ -120,7 +121,7 @@ const EditarPergunta: React.FC<EditarPerguntaProps> = ({
         </Button>
       </Box>
       <Typography variant="h4" gutterBottom>
-        Editar Pergunta
+        {GenericMessage.editQuestionTitle}
       </Typography>
       <Box display={"flex"} flexDirection={"column"} gap={3}>
         <TextField

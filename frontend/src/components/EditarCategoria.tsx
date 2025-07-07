@@ -4,6 +4,7 @@ import { Box } from "@mui/material";
 import { useSnackbar } from "@contexts/SnackbarContext";
 import { useFaqService } from "@contexts/FaqServiceContext";
 import { Category } from "types/faqTypes";
+import { SnackbarMessage } from "@locales/locale";
 
 interface EditarCategoriaProps {
   isOpen: boolean;
@@ -25,12 +26,12 @@ const EditarCategoria: React.FC<EditarCategoriaProps> = ({
     try {
       await faqService.updateCategory(Number(categoria.id), { name: newName });
 
-      showSnackbar("Categoria editada com sucesso.", "success");
+      showSnackbar(SnackbarMessage.editedCategory, "success");
 
       onCategoriaEditada();
       onClose();
     } catch (error) {
-      showSnackbar("Erro ao editar categoria.", "error");
+      showSnackbar(SnackbarMessage.errorEditCategory, "error");
     }
   };
 

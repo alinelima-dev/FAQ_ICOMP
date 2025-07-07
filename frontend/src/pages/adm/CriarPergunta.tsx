@@ -21,6 +21,7 @@ import "./css/CriarPergunta.css";
 import CriarCategoria from "../../components/CriarCategoria";
 import { useFaqService } from "@contexts/FaqServiceContext";
 import { Category } from "types/faqTypes";
+import { GenericMessage } from "@locales/locale";
 
 interface CriarPerguntaProps {
   onClose: () => void;
@@ -109,7 +110,7 @@ const CriarPergunta: React.FC<CriarPerguntaProps> = ({
         <Button onClick={onClose}>Fechar</Button>
       </Box>
       <Typography variant="h4" gutterBottom>
-        Criar Nova Pergunta
+        {GenericMessage.createQuestionTitle}
       </Typography>
       <Box display="flex" flexDirection="column" gap={3}>
         <TextField

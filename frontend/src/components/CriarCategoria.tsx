@@ -4,6 +4,7 @@ import CategoriaPopup from "./CategoriaPopup";
 import "./css/CriarCategoria.css";
 import { MdAddCircle } from "react-icons/md";
 import { useFaqService } from "@contexts/FaqServiceContext";
+import { GenericMessage } from "@locales/locale";
 
 interface CriarCategoriaProps {
   onCategoriaCriada: () => void;
@@ -31,7 +32,7 @@ const CriarCategoria: React.FC<CriarCategoriaProps> = ({
         onClick={() => setIsOpen(true)}
       >
         <MdAddCircle size={20} style={{ marginRight: 5 }} />
-        Criar Categoria
+        {GenericMessage.createCategory}
       </Button>
       <CategoriaPopup
         isOpen={isOpen}

@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Form, FormGroup, Button, Input, Label } from "reactstrap";
 import { useAuth } from "../../contexts/AuthContext";
+import { GenericMessage } from "@locales/locale";
 
 const Login: React.FC = () => {
   const [usuario, setUsuario] = useState("");
@@ -23,7 +24,7 @@ const Login: React.FC = () => {
   return (
     <div className="login-container">
       <Form className="centered-form" onSubmit={handleSubmit}>
-        <h2>Bem-vindo ao FAQICOMP</h2>
+        <h2>{GenericMessage.wellcomeMessage}</h2>
         <FormGroup>
           <Label for="usuario">Usuário</Label>
           <Input

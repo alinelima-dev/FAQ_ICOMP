@@ -8,6 +8,7 @@ import {
   Box,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import { GenericMessage } from "@locales/locale";
 
 interface CardPerguntaProps {
   id: number;
@@ -66,7 +67,7 @@ const CardPergunta: React.FC<CardPerguntaProps> = ({ id, title, content }) => {
             color="primary"
             onClick={() => navigate(`/pergunta/${id}`)}
           >
-            Ver mais
+            {GenericMessage.viewMore}
           </Button>
         </CardActions>
       </Box>
