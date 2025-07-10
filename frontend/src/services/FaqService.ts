@@ -2,7 +2,7 @@ import { inject, injectable } from "inversify";
 import { IFaqService } from "./IFaqService";
 import type { IHttpService } from "../modules/http/models/IHttpService";
 import { Types } from "../ioc/types";
-import { Category, Question, Suggestion } from "types/faqTypes";
+import { ICategory, IQuestion, ISuggestion } from "types/faqTypes";
 @injectable()
 export class FaqService implements IFaqService {
   constructor(
@@ -10,44 +10,50 @@ export class FaqService implements IFaqService {
     private readonly httpInstance: IHttpService
   ) {}
 
-  public async createQuestion(data: Partial<Question>): Promise<void> {
-    await this.httpInstance.post("/questions", data);
+  public async createQuestion(
+    data: Partial<IQuestion> | FormData,
+    isFormData = false
+  ): Promise<void> {
+    const headers = isFormData ? { "Content-Type": "multipart/form-data" } : {};
+    await this.httpInstance.post("/questions", data, { headers });
   }
 
-  public async getQuestions(): Promise<Question[]> {
+  public async getQuestions(): Promise<IQuestion[]> {
     return await this.httpInstance.get("/questions");
   }
 
   public async updateQuestion(
     id: number,
-    data: Partial<Question>
+    data: Partial<IQuestion> | FormData,
+    isFormData = false
   ): Promise<void> {
-    await this.httpInstance.put(`/questions/${id}`, data);
+    const headers = isFormData ? { "Content-Type": "multipart/form-data" } : {};
+    await this.httpInstance.put(`/questions/${id}`, data, { headers });
   }
 
   public async deleteQuestion(id: number): Promise<void> {
     await this.httpInstance.delete(`/questions/${id}`);
   }
 
-  public async getQuestionById(id: number): Promise<Question> {
+  public async getQuestionById(id: number): Promise<IQuestion> {
     return await this.httpInstance.get(`/questions/${id}`);
   }
 
-  public async getCategoryById(id: number): Promise<Category> {
+  public async getCategoryById(id: number): Promise<ICategory> {
     return await this.httpInstance.get(`/categories/${id}`);
   }
 
-  public async createCategory(data: Partial<Category>): Promise<void> {
+  public async createCategory(data: Partial<ICategory>): Promise<void> {
     await this.httpInstance.post("/categories", data);
   }
 
-  public async getCategories(): Promise<Category[]> {
+  public async getCategories(): Promise<ICategory[]> {
     return await this.httpInstance.get("/categories");
   }
 
   public async updateCategory(
     id: number,
-    data: Partial<Category>
+    data: Partial<ICategory>
   ): Promise<void> {
     await this.httpInstance.put(`/categories/${id}`, data);
   }
@@ -56,11 +62,11 @@ export class FaqService implements IFaqService {
     await this.httpInstance.delete(`/categories/${id}`);
   }
 
-  public async getSuggestions(): Promise<Suggestion[]> {
+  public async getSuggestions(): Promise<ISuggestion[]> {
     return await this.httpInstance.get("/faq/suggestions");
   }
 
-  public async submitSuggestion(data: Partial<Suggestion>): Promise<void> {
+  public async submitSuggestion(data: Partial<ISuggestion>): Promise<void> {
     await this.httpInstance.post("/faq/suggestions", data);
   }
 }

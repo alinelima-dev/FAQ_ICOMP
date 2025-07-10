@@ -10,34 +10,25 @@ import ConfirmarExclusao from "@components/Dialogs/ConfirmarExclusão";
 import CriarPerguntaDialog from "@components/Dialogs/CriarPerguntaDialog";
 import EditarPerguntaDialog from "@components/Dialogs/EditarPerguntaDialog";
 
-import { Question, Category } from "types/faqTypes";
+import { IQuestion, ICategory } from "types/faqTypes";
 import { useSnackbar } from "@contexts/SnackbarContext";
 import { GenericMessage, SnackbarMessage } from "@locales/locale";
 
 const Perguntas: React.FC = () => {
   const faqService = useFaqService();
-  const [perguntas, setPerguntas] = useState<Question[]>([]);
-  const [categorias, setCategorias] = useState<Category[]>([]);
+  const [perguntas, setPerguntas] = useState<IQuestion[]>([]);
+  const [categorias, setCategorias] = useState<ICategory[]>([]);
   const [categoriaSelecionada, setCategoriaSelecionada] = useState("None");
   const [pesquisa, setPesquisa] = useState("");
   const [perguntaParaExcluir, setPerguntaParaExcluir] =
-    useState<Question | null>(null);
+    useState<IQuestion | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [openCriar, setOpenCriar] = useState(false);
   const [openEditar, setOpenEditar] = useState(false);
   const [perguntaSelecionada, setPerguntaSelecionada] =
-    useState<Question | null>(null);
+    useState<IQuestion | null>(null);
 
   const { showSnackbar } = useSnackbar();
-
-  const fetchPerguntas = async () => {
-    try {
-      const data = await faqService.getQuestions();
-      setPerguntas(data);
-    } catch (error) {
-      console.error("Erro ao buscar perguntas:", error);
-    }
-  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -54,7 +45,18 @@ const Perguntas: React.FC = () => {
     fetchData();
   }, []);
 
-  const openModal = (pergunta: Question) => {
+  const atualizarPerguntasECategorias = async () => {
+    try {
+      const perguntasRes = await faqService.getQuestions();
+      const categoriasRes = await faqService.getCategories();
+      setPerguntas(perguntasRes);
+      setCategorias(categoriasRes);
+    } catch (error) {
+      console.error("Erro ao atualizar dados:", error);
+    }
+  };
+
+  const openModal = (pergunta: IQuestion) => {
     setPerguntaParaExcluir(pergunta);
     setModalOpen(true);
   };
@@ -184,7 +186,7 @@ const Perguntas: React.FC = () => {
       <CriarPerguntaDialog
         open={openCriar}
         onClose={() => setOpenCriar(false)}
-        onPerguntaCriada={fetchPerguntas}
+        onPerguntaCriada={atualizarPerguntasECategorias}
       />
 
       {perguntaSelecionada && (
@@ -192,7 +194,7 @@ const Perguntas: React.FC = () => {
           open={openEditar}
           pergunta={perguntaSelecionada}
           onClose={() => setOpenEditar(false)}
-          onPerguntaEditada={fetchPerguntas}
+          onPerguntaEditada={atualizarPerguntasECategorias}
         />
       )}
 

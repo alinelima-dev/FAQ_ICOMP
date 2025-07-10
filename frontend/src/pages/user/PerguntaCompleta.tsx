@@ -10,11 +10,12 @@ import {
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import Navbar from "../../components/Navbar";
 import { useFaqService } from "@contexts/FaqServiceContext";
-import { Question } from "types/faqTypes";
+import { IQuestion } from "types/faqTypes";
+import AttachmentList from "@components/ListaAnexos";
 
 const PerguntaCompleta: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const [pergunta, setPergunta] = useState<Question | null>(null);
+  const [pergunta, setPergunta] = useState<IQuestion | null>(null);
   const [categoria, setCategoria] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
   const navigate = useNavigate();
@@ -136,6 +137,12 @@ const PerguntaCompleta: React.FC = () => {
           }}
           dangerouslySetInnerHTML={{ __html: pergunta.content }}
         />
+
+        {pergunta.attachments && pergunta.attachments.length > 0 && (
+          <Box mt={3}>
+            <AttachmentList attachments={pergunta.attachments} />
+          </Box>
+        )}
 
         <Box display="flex" justifyContent="center" mt={4}>
           <MuiButton

@@ -20,8 +20,10 @@ import "react-quill/dist/quill.snow.css";
 import "./css/CriarPergunta.css";
 import CriarCategoria from "../../components/CriarCategoria";
 import { useFaqService } from "@contexts/FaqServiceContext";
-import { Category } from "types/faqTypes";
+import { ICategory } from "types/faqTypes";
 import { GenericMessage } from "@locales/locale";
+import AttachFileIcon from "@mui/icons-material/AttachFile";
+import AttachmentUploadList from "@components/ListaUploadAnexos";
 
 interface CriarPerguntaProps {
   onClose: () => void;
@@ -36,13 +38,14 @@ const CriarPergunta: React.FC<CriarPerguntaProps> = ({
 
   const [titulo, setTitulo] = useState("");
   const [content, setContent] = useState("");
-  const [categorias, setCategorias] = useState<Category[]>([]);
+  const [categorias, setCategorias] = useState<ICategory[]>([]);
   const [categoriaSelecionada, setCategoriaSelecionada] = useState<number>();
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [openDialog, setOpenDialog] = useState(false);
   const [dialogMessage, setDialogMessage] = useState("");
   const [dialogTitle, setDialogTitle] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [attachments, setAttachments] = useState<File[]>([]);
 
   const navigate = useNavigate();
 
@@ -68,16 +71,29 @@ const CriarPergunta: React.FC<CriarPerguntaProps> = ({
     return Object.keys(newErrors).length === 0;
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      setAttachments([...attachments, ...Array.from(e.target.files)]);
+    }
+  };
+
+  const handleRemoveFile = (index: number) => {
+    setAttachments((prev) => prev.filter((_, i) => i !== index));
+  };
+
   const handleSave = async () => {
     if (!validateFields()) return;
     setIsSubmitting(true);
 
     try {
-      await faqService.createQuestion({
-        title: titulo,
-        content,
-        category_id: categoriaSelecionada,
-      });
+      const formData = new FormData();
+      formData.append("title", titulo);
+      formData.append("content", content);
+      if (categoriaSelecionada)
+        formData.append("category_id", categoriaSelecionada.toString());
+      attachments.forEach((file) => formData.append("attachments", file));
+
+      await faqService.createQuestion(formData, true); // sinalize que é formData
       setDialogTitle("Sucesso");
       setDialogMessage("Pergunta criada com sucesso!");
       setOpenDialog(true);
@@ -146,6 +162,7 @@ const CriarPergunta: React.FC<CriarPerguntaProps> = ({
           justifyContent="space-between"
           flexWrap="wrap"
           gap={2}
+          mt={2}
           sx={{
             flexDirection: { xs: "column", sm: "row" },
             alignItems: { xs: "stretch", sm: "center" },
@@ -158,18 +175,48 @@ const CriarPergunta: React.FC<CriarPerguntaProps> = ({
               label="Categoria"
               onChange={(e) => setCategoriaSelecionada(Number(e.target.value))}
             >
-              <MenuItem>Selecione uma categoria</MenuItem>
-              {categorias.map((categoria) => (
-                <MenuItem key={categoria.id} value={categoria.id}>
-                  {categoria.name}
-                </MenuItem>
-              ))}
+              <MenuItem value="">Selecione uma categoria</MenuItem>
+              {[...categorias]
+                .sort((a, b) => a.name.localeCompare(b.name))
+                .map((categoria) => (
+                  <MenuItem key={categoria.id} value={categoria.id}>
+                    {categoria.name}
+                  </MenuItem>
+                ))}
             </Select>
+
             {errors.categoria && (
               <Typography color="error" variant="body2">
                 {errors.categoria}
               </Typography>
             )}
+          </FormControl>
+
+          <FormControl fullWidth>
+            <AttachmentUploadList
+              files={attachments}
+              onRemove={handleRemoveFile}
+            />
+            <Button
+              variant="outlined"
+              component="label"
+              startIcon={<AttachFileIcon />}
+              sx={{ textTransform: "none" }}
+            >
+              Anexar arquivos
+              <input
+                type="file"
+                hidden
+                multiple
+                accept=".jpg,.jpeg,.png,.pdf,.xls,.xlsx"
+                onChange={handleFileChange}
+              />
+            </Button>
+
+            <Typography variant="caption" color="text.secondary" mt={1}>
+              Tipos permitidos: JPG, PNG, PDF, XLS, XLSX — Tamanho máximo por
+              arquivo: 5MB
+            </Typography>
           </FormControl>
         </Box>
 

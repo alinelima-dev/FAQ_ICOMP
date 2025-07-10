@@ -18,12 +18,15 @@ import {
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 
-import { Category, Question } from "types/faqTypes";
+import { IAttachment, ICategory, IQuestion } from "types/faqTypes";
 import { useFaqService } from "@contexts/FaqServiceContext";
 import { GenericMessage } from "@locales/locale";
+import AttachmentList from "@components/ListaAnexos";
+import AttachmentUploadList from "@components/ListaUploadAnexos";
+import AttachFileIcon from "@mui/icons-material/AttachFile";
 
 interface EditarPerguntaProps {
-  pergunta: Question;
+  pergunta: IQuestion;
   onClose: () => void;
   onPerguntaEditada: () => void;
 }
@@ -36,7 +39,7 @@ const EditarPergunta: React.FC<EditarPerguntaProps> = ({
   const faqService = useFaqService();
   const [titulo, setTitulo] = useState("");
   const [content, setContent] = useState("");
-  const [categorias, setCategorias] = useState<Category[]>([]);
+  const [categorias, setCategorias] = useState<ICategory[]>([]);
   const [categoriaSelecionada, setCategoriaSelecionada] = useState<
     number | string
   >(0);
@@ -45,6 +48,14 @@ const EditarPergunta: React.FC<EditarPerguntaProps> = ({
   const [dialogMessage, setDialogMessage] = useState("");
   const [dialogTitle, setDialogTitle] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [attachments, setAttachments] = useState<File[]>([]);
+  const [existingAttachments, setExistingAttachments] = useState<IAttachment[]>(
+    []
+  );
+  const [deletedAttachmentIds, setDeletedAttachmentIds] = useState<number[]>(
+    []
+  );
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -52,6 +63,7 @@ const EditarPergunta: React.FC<EditarPerguntaProps> = ({
       setTitulo(pergunta.title);
       setContent(pergunta.content);
       setCategoriaSelecionada(pergunta.category_id.toString());
+      setExistingAttachments(pergunta.attachments || []);
     }
 
     const fetchCategorias = async () => {
@@ -76,16 +88,37 @@ const EditarPergunta: React.FC<EditarPerguntaProps> = ({
     return Object.keys(newErrors).length === 0;
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      setAttachments([...attachments, ...Array.from(e.target.files)]);
+    }
+  };
+
+  const handleRemoveFile = (index: number) => {
+    setAttachments((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleRemoveExistingAttachment = (id: number) => {
+    setExistingAttachments((prev) => prev.filter((att) => att.id !== id));
+    setDeletedAttachmentIds((prev) => [...prev, id]);
+  };
+
   const handleSave = async () => {
     if (!validateFields()) return;
     setIsSubmitting(true);
 
     try {
-      await faqService.updateQuestion(pergunta.id, {
-        title: titulo,
-        content,
-        category_id: Number(categoriaSelecionada),
+      const formData = new FormData();
+      formData.append("title", titulo);
+      formData.append("content", content);
+      formData.append("category_id", categoriaSelecionada.toString());
+
+      attachments.forEach((file) => formData.append("attachments", file));
+      deletedAttachmentIds.forEach((id) => {
+        formData.append("deleted_ids", id.toString());
       });
+
+      await faqService.updateQuestion(pergunta.id, formData, true);
       setDialogTitle("Sucesso");
       setDialogMessage("Pergunta editada com sucesso!");
       setOpenDialog(true);
@@ -97,6 +130,7 @@ const EditarPergunta: React.FC<EditarPerguntaProps> = ({
       setIsSubmitting(false);
     }
   };
+
   const handleQuillChange = (value: string) => {
     setContent(value);
   };
@@ -155,26 +189,75 @@ const EditarPergunta: React.FC<EditarPerguntaProps> = ({
           )}
         </Box>
 
-        <Box display="flex" justifyContent="space-between">
+        <Box
+          display="flex"
+          justifyContent="space-between"
+          flexWrap="wrap"
+          gap={2}
+          mt={2}
+          sx={{
+            flexDirection: { xs: "column", sm: "row" },
+            alignItems: { xs: "stretch", sm: "center" },
+          }}
+        >
           <FormControl fullWidth error={!!errors.categoria}>
             <InputLabel>Categoria</InputLabel>
             <Select
               value={categoriaSelecionada}
               label="Categoria"
-              onChange={(e) => setCategoriaSelecionada(e.target.value)}
+              onChange={(e) => setCategoriaSelecionada(Number(e.target.value))}
             >
-              <MenuItem value="None">Selecione uma categoria</MenuItem>
-              {categorias.map((categoria) => (
-                <MenuItem key={categoria.id} value={categoria.id}>
-                  {categoria.name}
-                </MenuItem>
-              ))}
+              <MenuItem value="">Selecione uma categoria</MenuItem>
+              {[...categorias]
+                .sort((a, b) => a.name.localeCompare(b.name))
+                .map((categoria) => (
+                  <MenuItem key={categoria.id} value={categoria.id}>
+                    {categoria.name}
+                  </MenuItem>
+                ))}
             </Select>
+
             {errors.categoria && (
               <Typography color="error" variant="body2">
                 {errors.categoria}
               </Typography>
             )}
+          </FormControl>
+
+          <FormControl fullWidth>
+            {existingAttachments.length > 0 && (
+              <Box mb={2}>
+                <AttachmentList
+                  attachments={existingAttachments}
+                  onDelete={handleRemoveExistingAttachment}
+                />
+              </Box>
+            )}
+
+            <AttachmentUploadList
+              files={attachments}
+              onRemove={handleRemoveFile}
+            />
+            <Button
+              variant="outlined"
+              component="label"
+              startIcon={<AttachFileIcon />}
+              sx={{ textTransform: "none" }}
+            >
+              Anexar arquivos
+              <input
+                type="file"
+                hidden
+                multiple
+                accept=".jpg,.jpeg,.png,.pdf,.xls,.xlsx"
+                onChange={handleFileChange}
+              />
+            </Button>
+
+            <Typography variant="caption" color="text.secondary" mt={1}>
+              Tipos permitidos: JPG, PNG, PDF, XLS, XLSX — Tamanho máximo por
+              arquivo: 5MB
+            </Typography>
           </FormControl>
         </Box>
 

@@ -1,16 +1,23 @@
-import { Category, Question, Suggestion } from "types/faqTypes";
+import { ICategory, IQuestion, ISuggestion } from "types/faqTypes";
 
 export interface IFaqService {
-  createQuestion(data: Partial<Question>): Promise<void>;
-  getQuestions(): Promise<Question[]>;
-  updateQuestion(id: number, data: Partial<Question>): Promise<void>;
+  createQuestion(
+    data: Partial<IQuestion> | FormData,
+    isFormData?: boolean
+  ): Promise<void>;
+  getQuestions(): Promise<IQuestion[]>;
+  updateQuestion(
+    id: number,
+    data: Partial<IQuestion> | FormData,
+    isFormData?: boolean
+  ): Promise<void>;
   deleteQuestion(id: number): Promise<void>;
-  createCategory(data: Partial<Category>): Promise<void>;
-  getCategories(): Promise<Category[]>;
-  updateCategory(id: number, data: Partial<Category>): Promise<void>;
+  createCategory(data: Partial<ICategory>): Promise<void>;
+  getCategories(): Promise<ICategory[]>;
+  updateCategory(id: number, data: Partial<ICategory>): Promise<void>;
   deleteCategory(id: number): Promise<void>;
-  getSuggestions(): Promise<Suggestion[]>;
-  submitSuggestion(data: Partial<Suggestion>): Promise<void>;
-  getQuestionById(id: number): Promise<Question>;
-  getCategoryById(id: number): Promise<Category>;
+  getSuggestions(): Promise<ISuggestion[]>;
+  submitSuggestion(data: Partial<ISuggestion>): Promise<void>;
+  getQuestionById(id: number): Promise<IQuestion>;
+  getCategoryById(id: number): Promise<ICategory>;
 }
