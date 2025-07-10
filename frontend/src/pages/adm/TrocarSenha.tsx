@@ -1,7 +1,5 @@
-import "./css/Login.css";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Form, FormGroup, Button, Input, Label, Alert } from "reactstrap";
+import { Box, Paper, TextField, Button, Typography } from "@mui/material";
 import { useUserContext } from "@contexts/UserContext";
 import { useSnackbar } from "@contexts/SnackbarContext";
 import bcrypt from "bcryptjs";
@@ -14,20 +12,20 @@ const TrocarSenha: React.FC = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
 
   const { userService } = useUserContext();
-  const navigate = useNavigate();
   const { showSnackbar } = useSnackbar();
 
-  const hashSalvo =
-    "$2a$12$JH3XiRXT3s3x7Yv0KjIMYuxF.u4r35N3/u50xdUQLIURKKnLoPIvm"; // Hash fixo para teste
+  // const hashSalvo =
+  //   "$2a$12$JH3XiRXT3s3x7Yv0KjIMYuxF.u4r35N3/u50xdUQLIURKKnLoPIvm";
 
-  const testarSenhaAtual = async () => {
-    const confere = await bcrypt.compare(currentPassword, hashSalvo);
-    if (confere) {
-      showSnackbar("✅ A senha atual está correta!", "success");
-    } else {
-      showSnackbar("❌ A senha atual está incorreta.", "error");
-    }
-  };
+  // const testarSenhaAtual = async () => {
+  //   const confere = await bcrypt.compare(currentPassword, hashSalvo);
+  //   showSnackbar(
+  //     confere
+  //       ? "✅ A senha atual está correta!"
+  //       : "❌ A senha atual está incorreta.",
+  //     confere ? "success" : "error"
+  //   );
+  // };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,10 +45,6 @@ const TrocarSenha: React.FC = () => {
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
-
-      /*setTimeout(() => {
-        navigate("/adm/perguntas");
-      }, 2000);*/
     } catch (error: any) {
       const msg =
         error?.response?.data?.error || SnackbarMessage.changePasswordError;
@@ -59,72 +53,87 @@ const TrocarSenha: React.FC = () => {
   };
 
   return (
-    <div className="login-container">
-      <Form className="centered-form" onSubmit={handleSubmit}>
-        <h2>{GenericMessage.changePasswordTitle}</h2>
+    <Box
+      display="flex"
+      alignItems="center"
+      justifyContent="center"
+      minHeight="100vh"
+      sx={{
+        background: "linear-gradient(50deg, #2575fc, #6a11cb)",
+        backgroundSize: "400% 400%",
+        animation: "gradientMove 15s ease infinite",
+      }}
+    >
+      <Paper
+        elevation={4}
+        sx={{
+          padding: { xs: 3, sm: 5 },
+          borderRadius: 3,
+          width: "100%",
+          maxWidth: 420,
+        }}
+      >
+        <form onSubmit={handleSubmit}>
+          <Typography variant="h5" align="center" gutterBottom>
+            {GenericMessage.changePasswordTitle}
+          </Typography>
 
-        <FormGroup>
-          <Label for="usuario">Usuário</Label>
-          <Input
-            id="usuario"
-            type="text"
-            placeholder="Digite seu usuário"
+          <TextField
+            label="Usuário"
+            fullWidth
+            margin="normal"
             value={usuario}
             onChange={(e) => setUsuario(e.target.value)}
             required
           />
-        </FormGroup>
 
-        <FormGroup>
-          <Label for="currentPassword">Senha atual</Label>
-          <Input
-            id="currentPassword"
+          <TextField
+            label="Senha atual"
             type="password"
-            placeholder="Digite sua senha atual"
+            fullWidth
+            margin="normal"
             value={currentPassword}
             onChange={(e) => setCurrentPassword(e.target.value)}
             required
           />
-        </FormGroup>
 
-        <FormGroup>
-          <Label for="newPassword">Nova senha</Label>
-          <Input
-            id="newPassword"
+          <TextField
+            label="Nova senha"
             type="password"
-            placeholder="Digite a nova senha"
+            fullWidth
+            margin="normal"
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
             required
           />
-        </FormGroup>
 
-        <FormGroup>
-          <Label for="confirmPassword">Confirmar nova senha</Label>
-          <Input
-            id="confirmPassword"
+          <TextField
+            label="Confirmar nova senha"
             type="password"
-            placeholder="Confirme a nova senha"
+            fullWidth
+            margin="normal"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             required
           />
-        </FormGroup>
 
-        <Button type="submit" color="primary">
-          Atualizar Senha
-        </Button>
-
-        <Button
-          type="button"
-          color="secondary"
-          onClick={testarSenhaAtual}
-          style={{ marginBottom: "1rem" }}
-        >
-          Testar Senha Atual
-        </Button>
-      </Form>
-    </div>
+          <Box mt={3} display="flex" flexDirection="column" gap={2}>
+            <Button type="submit" variant="contained" fullWidth>
+              Atualizar Senha
+            </Button>
+            {/* <Button
+              type="button"
+              variant="outlined"
+              color="secondary"
+              fullWidth
+              onClick={testarSenhaAtual}
+            >
+              Testar Senha Atual
+            </Button> */}
+          </Box>
+        </form>
+      </Paper>
+    </Box>
   );
 };
 

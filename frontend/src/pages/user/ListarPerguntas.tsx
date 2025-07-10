@@ -11,10 +11,10 @@ import {
   Snackbar,
   Alert,
 } from "@mui/material";
-import { Question } from "types/faqTypes";
+import { IQuestion } from "types/faqTypes";
 
 interface ListarPerguntasProps {
-  perguntas: Question[];
+  perguntas: IQuestion[];
   loading: boolean;
   error?: string;
 }

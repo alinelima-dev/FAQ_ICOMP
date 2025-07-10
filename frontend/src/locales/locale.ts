@@ -25,4 +25,5 @@ export enum SnackbarMessage {
   changePasswordSucess = "Senha atualizada com sucesso.",
   changePasswordError = "Erro ao atualizar a senha.",
   changePasswordNoMatch = "As senhas não coincidem.",
+  loginError = "Credenciais inválidas",
 }

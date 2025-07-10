@@ -8,15 +8,15 @@ import EditarCategoria from "../../components/EditarCategoria";
 import { FaEdit, FaTrash } from "react-icons/fa";
 
 import { useFaqService } from "@contexts/FaqServiceContext";
-import { Category } from "types/faqTypes";
+import { ICategory } from "types/faqTypes";
 import { useSnackbar } from "@contexts/SnackbarContext";
 import { GenericMessage, SnackbarMessage } from "@locales/locale";
 
 const Categorias: React.FC = () => {
   const faqService = useFaqService();
-  const [categorias, setCategorias] = useState<Category[]>([]);
+  const [categorias, setCategorias] = useState<ICategory[]>([]);
   const [categoriaSelecionada, setCategoriaSelecionada] =
-    useState<Category | null>(null);
+    useState<ICategory | null>(null);
   const [isEditOpen, setIsEditOpen] = useState(false);
 
   const { showSnackbar } = useSnackbar();
@@ -34,7 +34,7 @@ const Categorias: React.FC = () => {
     fetchCategorias();
   }, []);
 
-  const handleEdit = (categoria: Category) => {
+  const handleEdit = (categoria: ICategory) => {
     setCategoriaSelecionada(categoria);
     setIsEditOpen(true);
   };

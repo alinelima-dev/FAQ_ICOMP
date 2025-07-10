@@ -10,12 +10,12 @@ import {
   MenuItem,
 } from "@mui/material";
 import CardPergunta from "../../components/CardPergunta";
-import { Category, Question } from "types/faqTypes";
+import { ICategory, IQuestion } from "types/faqTypes";
 import { useFaqService } from "@contexts/FaqServiceContext";
 
 const Home: React.FC = () => {
-  const [perguntas, setPerguntas] = useState<Question[]>([]);
-  const [categorias, setCategorias] = useState<Category[]>([]);
+  const [perguntas, setPerguntas] = useState<IQuestion[]>([]);
+  const [categorias, setCategorias] = useState<ICategory[]>([]);
   const [categoriaSelecionada, setCategoriaSelecionada] = useState("None");
   const [pesquisa, setPesquisa] = useState("");
   const [loading, setLoading] = useState(true);

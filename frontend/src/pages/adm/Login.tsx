@@ -1,15 +1,16 @@
-import "./css/Login.css";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Form, FormGroup, Button, Input, Label } from "reactstrap";
+import { Box, TextField, Button, Typography, Paper } from "@mui/material";
 import { useAuth } from "../../contexts/AuthContext";
-import { GenericMessage } from "@locales/locale";
+import { useSnackbar } from "@contexts/SnackbarContext";
+import { GenericMessage, SnackbarMessage } from "@locales/locale";
 
 const Login: React.FC = () => {
   const [usuario, setUsuario] = useState("");
   const [senha, setSenha] = useState("");
   const navigate = useNavigate();
   const { login } = useAuth();
+  const { showSnackbar } = useSnackbar();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -17,37 +18,61 @@ const Login: React.FC = () => {
       await login(usuario, senha);
       navigate("/adm/perguntas");
     } catch (error) {
-      alert("Credenciais inválidas");
+      showSnackbar(SnackbarMessage.loginError, "error");
     }
   };
 
   return (
-    <div className="login-container">
-      <Form className="centered-form" onSubmit={handleSubmit}>
-        <h2>{GenericMessage.wellcomeMessage}</h2>
-        <FormGroup>
-          <Label for="usuario">Usuário</Label>
-          <Input
-            id="usuario"
-            type="text"
-            placeholder="Digite seu usuário"
+    <Box
+      display="flex"
+      alignItems="center"
+      justifyContent="center"
+      minHeight="100vh"
+      sx={{
+        background: "linear-gradient(50deg, #2575fc, #6a11cb)",
+        backgroundSize: "400% 400%",
+        animation: "gradientMove 1s ease infinite",
+      }}
+    >
+      <Paper
+        elevation={3}
+        sx={{
+          padding: { xs: 3, sm: 5 },
+          borderRadius: 3,
+          width: "100%",
+          maxWidth: 400,
+        }}
+      >
+        <form onSubmit={handleSubmit}>
+          <Typography variant="h5" align="center" gutterBottom>
+            {GenericMessage.wellcomeMessage}
+          </Typography>
+
+          <TextField
+            label="Usuário"
+            fullWidth
+            margin="normal"
             value={usuario}
             onChange={(e) => setUsuario(e.target.value)}
           />
-        </FormGroup>
-        <FormGroup>
-          <Label for="senha">Senha</Label>
-          <Input
-            id="senha"
+
+          <TextField
+            label="Senha"
             type="password"
-            placeholder="Digite sua senha"
+            fullWidth
+            margin="normal"
             value={senha}
             onChange={(e) => setSenha(e.target.value)}
           />
-        </FormGroup>
-        <Button type="submit">Entrar</Button>
-      </Form>
-    </div>
+
+          <Box mt={3}>
+            <Button type="submit" fullWidth variant="contained" color="primary">
+              Entrar
+            </Button>
+          </Box>
+        </form>
+      </Paper>
+    </Box>
   );
 };
 
