@@ -16,6 +16,9 @@ import { UserController } from "../controllers/UserController";
 import { UserService } from "../services/UserService";
 
 import { AuthController } from "../controllers/AuthController";
+import { SuggestionRepository } from "../repositories/SuggestionRepository";
+import { SuggestionService } from "../services/SuggestionService";
+import { SuggestionController } from "../controllers/SuggestionController";
 
 const container = new Container();
 
@@ -36,5 +39,13 @@ container.bind<AuthController>(AuthController).toSelf();
 
 container.bind<UserController>(UserController).toSelf();
 container.bind<UserService>(TYPES.UserService).to(UserService);
+
+container
+  .bind<SuggestionRepository>(TYPES.SuggestionRepository)
+  .to(SuggestionRepository);
+container
+  .bind<SuggestionService>(TYPES.SuggestionService)
+  .to(SuggestionService);
+container.bind<SuggestionController>(SuggestionController).toSelf();
 
 export default container;
