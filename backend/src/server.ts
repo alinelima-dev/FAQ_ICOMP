@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import routes from "./routes";
 import "./container/inversify.config";
 import pool from "./config/db";
+import path from "path";
 
 dotenv.config();
 
@@ -17,6 +18,8 @@ app.use(
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
+
+//app.use("/uploads", express.static(path.resolve("uploads")));
 
 const PORT = process.env.PORT || 3002;
 

@@ -1,6 +1,6 @@
-import { inject, injectable } from 'inversify';
-import TYPES from '../types';
-import { QuestionRepository } from '../repositories/QuestionRepository';
+import { inject, injectable } from "inversify";
+import TYPES from "../types";
+import { QuestionRepository } from "../repositories/QuestionRepository";
 
 @injectable()
 export class QuestionService {
@@ -8,8 +8,13 @@ export class QuestionService {
     @inject(TYPES.QuestionRepository) private questionRepo: QuestionRepository
   ) {}
 
-  createQuestion(title: string, content: string, categoryId: number) {
-    return this.questionRepo.create(title, content, categoryId);
+  createQuestion(
+    title: string,
+    content: string,
+    categoryId: number,
+    files?: Express.Multer.File[]
+  ) {
+    return this.questionRepo.create(title, content, categoryId, files);
   }
 
   getAllQuestions() {
@@ -20,8 +25,14 @@ export class QuestionService {
     return this.questionRepo.findById(id);
   }
 
-  updateQuestion(id: number, title: string, content: string, categoryId: number) {
-    return this.questionRepo.update(id, title, content, categoryId);
+  updateQuestion(
+    id: number,
+    title: string,
+    content: string,
+    categoryId: number,
+    files?: Express.Multer.File[]
+  ) {
+    return this.questionRepo.update(id, title, content, categoryId, files);
   }
 
   deleteQuestion(id: number) {

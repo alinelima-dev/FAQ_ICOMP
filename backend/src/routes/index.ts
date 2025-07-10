@@ -7,6 +7,8 @@ import { AuthController } from "../controllers/AuthController";
 import { authenticateToken } from "../middlewares/AuthMiddleware";
 import { UserController } from "../controllers/UserController";
 import authRoutes from "./auth.routes";
+import { upload } from "../config/multerConfig";
+import path from "path";
 
 const router = express.Router();
 const categoryController = container.get(CategoryController);
@@ -20,10 +22,18 @@ router.get("/categories/:id", asyncHandler(categoryController.getById));
 router.put("/categories/:id", asyncHandler(categoryController.update));
 router.delete("/categories/:id", categoryController.delete);
 
-router.post("/questions", asyncHandler(questionController.create));
+router.post(
+  "/questions",
+  upload.array("attachments"),
+  asyncHandler(questionController.create)
+);
 router.get("/questions", asyncHandler(questionController.getAll));
 router.get("/questions/:id", asyncHandler(questionController.getById));
-router.put("/questions/:id", asyncHandler(questionController.update));
+router.put(
+  "/questions/:id",
+  upload.array("attachments"),
+  asyncHandler(questionController.update)
+);
 router.delete("/questions/:id", asyncHandler(questionController.delete));
 
 router.post("/auth/login", asyncHandler(authController.login));
@@ -36,5 +46,17 @@ router.post(
   authenticateToken,
   asyncHandler(userController.updatePassword)
 );
+
+router.get("/attachments/:filename", (req, res) => {
+  const filename = req.params.filename;
+  const filePath = path.resolve("uploads", filename);
+
+  res.download(filePath, filename, (err) => {
+    if (err) {
+      console.error("Erro ao baixar o arquivo:", err);
+      res.status(404).json({ error: "Arquivo não encontrado" });
+    }
+  });
+});
 
 export default router;

@@ -32,7 +32,7 @@ export class AuthService {
       const token = jwt.sign(
         { id: user.id, username: user.username },
         process.env.JWT_SECRET as string, // Chave secreta do JWT (no .env)
-        { expiresIn: "1h" } //expiração do token (1 hora)
+        { expiresIn: "5min" } //expiração do token (1 hora)
       );
 
       console.log("Token gerado com sucesso!");

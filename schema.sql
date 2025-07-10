@@ -26,3 +26,20 @@ CREATE TABLE IF NOT EXISTS questions (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE IF NOT EXISTS attachments (
+    id SERIAL PRIMARY KEY,
+    filename VARCHAR(255) NOT NULL,
+    filepath TEXT NOT NULL,
+    mimetype VARCHAR(100) NOT NULL,
+    question_id INTEGER REFERENCES questions(id) ON DELETE CASCADE,
+    uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS suggestions ( 
+    id SERIAL PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    content TEXT NOT NULL,
+    ip_address VARCHAR(45), -- para controle de spam ou rate limit
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
