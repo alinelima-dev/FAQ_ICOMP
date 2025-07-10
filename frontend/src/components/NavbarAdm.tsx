@@ -20,6 +20,7 @@ import {
   FaClipboardList,
   FaSignOutAlt,
   FaPen,
+  FaComment,
 } from "react-icons/fa";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
@@ -39,6 +40,7 @@ const NavbarAdm: React.FC = () => {
 
   const isInPerguntas = location.pathname.includes("/adm/perguntas");
   const isInCategorias = location.pathname.includes("/adm/categorias");
+  const isInSuggestion = location.pathname.includes("/adm/categorias");
 
   const toggleDrawer = (state: boolean) => () => setOpen(state);
 
@@ -110,7 +112,14 @@ const NavbarAdm: React.FC = () => {
                   <ListItemText primary="Categorias" />
                 </ListItemButton>
               )}
-
+              {!isInSuggestion && (
+                <ListItemButton onClick={() => navigate("/adm/sugestoes")}>
+                  <ListItemIcon>
+                    <FaComment />
+                  </ListItemIcon>
+                  <ListItemText primary="Sugestões" />
+                </ListItemButton>
+              )}
               <ListItemButton onClick={() => navigate("/trocar-senha")}>
                 <ListItemIcon>
                   <FaPen />

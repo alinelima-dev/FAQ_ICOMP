@@ -63,10 +63,10 @@ export class FaqService implements IFaqService {
   }
 
   public async getSuggestions(): Promise<ISuggestion[]> {
-    return await this.httpInstance.get("/faq/suggestions");
+    return await this.httpInstance.get("/suggestions");
   }
 
   public async submitSuggestion(data: Partial<ISuggestion>): Promise<void> {
-    await this.httpInstance.post("/faq/suggestions", data);
+    await this.httpInstance.post("/suggestions", data);
   }
 }

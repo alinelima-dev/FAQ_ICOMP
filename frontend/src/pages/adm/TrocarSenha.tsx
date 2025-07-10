@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Box, Paper, TextField, Button, Typography } from "@mui/material";
 import { useUserContext } from "@contexts/UserContext";
 import { useSnackbar } from "@contexts/SnackbarContext";
-import bcrypt from "bcryptjs";
+//import bcrypt from "bcryptjs";
 import { GenericMessage, SnackbarMessage } from "@locales/locale";
 
 const TrocarSenha: React.FC = () => {

@@ -15,8 +15,10 @@ export interface ICategory {
 
 export interface ISuggestion {
   id: number;
-  question: string;
-  createdAt?: string;
+  title: string;
+  content: string;
+  ip_address?: string;
+  created_at?: string;
 }
 
 export interface IAttachment {

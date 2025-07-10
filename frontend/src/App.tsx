@@ -10,6 +10,7 @@ import { SnackbarProvider } from "@contexts/SnackbarContext";
 import TrocarSenha from "@pages/adm/TrocarSenha";
 import { UserProvider } from "@contexts/UserContext";
 import { IoCProvider } from "@contexts/IoCContext";
+import Sugestoes from "@pages/adm/Sugestoes";
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
                 <Route path="/login" element={<Login />} />
                 <Route path="/pergunta/:id" element={<PerguntaCompleta />} />
                 <Route path="/trocar-senha" element={<TrocarSenha />} />
+                <Route path="/adm/sugestoes" element={<Sugestoes />} />
 
                 {/* Rotas protegidas */}
                 <Route
