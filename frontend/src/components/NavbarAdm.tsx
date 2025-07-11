@@ -12,7 +12,6 @@ import {
   Box,
   Divider,
   Button,
-  useTheme,
 } from "@mui/material";
 import {
   FaBars,
@@ -31,7 +30,6 @@ const NavbarAdm: React.FC = () => {
   const { logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const theme = useTheme();
 
   const handleLogout = () => {
     logout();
@@ -40,7 +38,7 @@ const NavbarAdm: React.FC = () => {
 
   const isInPerguntas = location.pathname.includes("/adm/perguntas");
   const isInCategorias = location.pathname.includes("/adm/categorias");
-  const isInSuggestion = location.pathname.includes("/adm/categorias");
+  const isInSuggestion = location.pathname.includes("/adm/sugestoes");
 
   const toggleDrawer = (state: boolean) => () => setOpen(state);
 

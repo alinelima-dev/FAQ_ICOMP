@@ -21,7 +21,7 @@ const AttachmentList: React.FC<Props> = ({ attachments, onDelete }) => {
   return (
     <Box mt={2}>
       <Typography variant="h6" gutterBottom>
-        Anexos existentes
+        Anexos:
       </Typography>
       <Paper variant="outlined">
         <List dense>

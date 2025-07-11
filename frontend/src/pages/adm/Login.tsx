@@ -1,6 +1,15 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Box, TextField, Button, Typography, Paper } from "@mui/material";
+import {
+  Box,
+  TextField,
+  Button,
+  Typography,
+  Paper,
+  IconButton,
+  InputAdornment,
+} from "@mui/material";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useAuth } from "../../contexts/AuthContext";
 import { useSnackbar } from "@contexts/SnackbarContext";
 import { GenericMessage, SnackbarMessage } from "@locales/locale";
@@ -8,6 +17,8 @@ import { GenericMessage, SnackbarMessage } from "@locales/locale";
 const Login: React.FC = () => {
   const [usuario, setUsuario] = useState("");
   const [senha, setSenha] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+
   const navigate = useNavigate();
   const { login } = useAuth();
   const { showSnackbar } = useSnackbar();
@@ -21,6 +32,8 @@ const Login: React.FC = () => {
       showSnackbar(SnackbarMessage.loginError, "error");
     }
   };
+
+  const toggleShowPassword = () => setShowPassword((prev) => !prev);
 
   return (
     <Box
@@ -58,17 +71,37 @@ const Login: React.FC = () => {
 
           <TextField
             label="Senha"
-            type="password"
+            type={showPassword ? "text" : "password"}
             fullWidth
             margin="normal"
             value={senha}
             onChange={(e) => setSenha(e.target.value)}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton onClick={toggleShowPassword} edge="end">
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
           />
 
           <Box mt={3}>
             <Button type="submit" fullWidth variant="contained" color="primary">
               Entrar
             </Button>
+          </Box>
+
+          <Box mt={2}>
+            <Typography
+              variant="body2"
+              align="center"
+              sx={{ cursor: "pointer", color: "primary.main", mt: 1 }}
+              onClick={() => navigate("/esqueci-senha")}
+            >
+              Esqueci minha senha
+            </Typography>
           </Box>
         </form>
       </Paper>

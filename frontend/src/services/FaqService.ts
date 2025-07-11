@@ -19,7 +19,9 @@ export class FaqService implements IFaqService {
   }
 
   public async getQuestions(): Promise<IQuestion[]> {
-    return await this.httpInstance.get("/questions");
+    const response = await this.httpInstance.get("/questions");
+    console.log("Resposta completa da API getQuestions:", response);
+    return response;
   }
 
   public async updateQuestion(
@@ -68,5 +70,9 @@ export class FaqService implements IFaqService {
 
   public async submitSuggestion(data: Partial<ISuggestion>): Promise<void> {
     await this.httpInstance.post("/suggestions", data);
+  }
+
+  public async forgotPassword(email: string): Promise<void> {
+    await this.httpInstance.post("/auth/request-reset", { email });
   }
 }

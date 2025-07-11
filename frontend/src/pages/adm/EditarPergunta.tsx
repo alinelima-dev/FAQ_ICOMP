@@ -1,17 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 
 import "./css/EditarPergunta.css";
 import {
-  Alert,
   Box,
   Button,
+  Checkbox,
   CircularProgress,
   FormControl,
   InputLabel,
+  ListItemText,
   MenuItem,
   Select,
-  Snackbar,
   TextField,
   Typography,
 } from "@mui/material";
@@ -24,6 +23,8 @@ import { GenericMessage } from "@locales/locale";
 import AttachmentList from "@components/ListaAnexos";
 import AttachmentUploadList from "@components/ListaUploadAnexos";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
+import CriarCategoria from "@components/CriarCategoria";
+import { useSnackbar } from "@contexts/SnackbarContext";
 
 interface EditarPerguntaProps {
   pergunta: IQuestion;
@@ -36,17 +37,16 @@ const EditarPergunta: React.FC<EditarPerguntaProps> = ({
   onClose,
   onPerguntaEditada,
 }) => {
+  const { showSnackbar } = useSnackbar();
   const faqService = useFaqService();
+
   const [titulo, setTitulo] = useState("");
   const [content, setContent] = useState("");
   const [categorias, setCategorias] = useState<ICategory[]>([]);
-  const [categoriaSelecionada, setCategoriaSelecionada] = useState<
-    number | string
-  >(0);
+  const [categoriasSelecionadas, setCategoriasSelecionadas] = useState<
+    number[]
+  >([]);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
-  const [openDialog, setOpenDialog] = useState(false);
-  const [dialogMessage, setDialogMessage] = useState("");
-  const [dialogTitle, setDialogTitle] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [attachments, setAttachments] = useState<File[]>([]);
   const [existingAttachments, setExistingAttachments] = useState<IAttachment[]>(
@@ -56,24 +56,22 @@ const EditarPergunta: React.FC<EditarPerguntaProps> = ({
     []
   );
 
-  const navigate = useNavigate();
+  const fetchCategorias = async () => {
+    try {
+      const data = await faqService.getCategories();
+      setCategorias(data);
+    } catch (error) {
+      console.error("Erro ao buscar categorias:", error);
+    }
+  };
 
   useEffect(() => {
     if (pergunta) {
       setTitulo(pergunta.title);
       setContent(pergunta.content);
-      setCategoriaSelecionada(pergunta.category_id.toString());
+      setCategoriasSelecionadas(pergunta.categories.map((c) => c.id));
       setExistingAttachments(pergunta.attachments || []);
     }
-
-    const fetchCategorias = async () => {
-      try {
-        const data = await faqService.getCategories();
-        setCategorias(data);
-      } catch (error) {
-        console.error("Erro ao buscar categorias:", error);
-      }
-    };
 
     fetchCategorias();
   }, [pergunta]);
@@ -82,8 +80,8 @@ const EditarPergunta: React.FC<EditarPerguntaProps> = ({
     const newErrors: typeof errors = {};
     if (!titulo.trim()) newErrors.titulo = "O título é obrigatório.";
     if (!content.trim()) newErrors.content = "O conteúdo é obrigatório.";
-    if (categoriaSelecionada === "None")
-      newErrors.categoria = "Você deve selecionar uma categoria.";
+    if (categoriasSelecionadas.length === 0)
+      newErrors.categoria = "Você deve selecionar ao menos uma categoria.";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -111,7 +109,12 @@ const EditarPergunta: React.FC<EditarPerguntaProps> = ({
       const formData = new FormData();
       formData.append("title", titulo);
       formData.append("content", content);
-      formData.append("category_id", categoriaSelecionada.toString());
+      const categoryIds = Array.isArray(categoriasSelecionadas)
+        ? categoriasSelecionadas.map((id) => Number(id))
+        : [Number(categoriasSelecionadas)];
+      categoryIds.forEach((id) =>
+        formData.append("category_id", id.toString())
+      );
 
       attachments.forEach((file) => formData.append("attachments", file));
       deletedAttachmentIds.forEach((id) => {
@@ -119,13 +122,18 @@ const EditarPergunta: React.FC<EditarPerguntaProps> = ({
       });
 
       await faqService.updateQuestion(pergunta.id, formData, true);
-      setDialogTitle("Sucesso");
-      setDialogMessage("Pergunta editada com sucesso!");
-      setOpenDialog(true);
-    } catch (error) {
-      setDialogTitle("Erro");
-      setDialogMessage("Erro ao atualizar pergunta");
-      setOpenDialog(true);
+      showSnackbar("Pergunta editada com sucesso!", "success");
+      onPerguntaEditada();
+      onClose();
+    } catch (error: any) {
+      console.error("Erro ao criar pergunta:", error);
+
+      const errorMessage =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Erro ao criar pergunta.";
+
+      showSnackbar(errorMessage, "error");
     } finally {
       setIsSubmitting(false);
     }
@@ -133,15 +141,6 @@ const EditarPergunta: React.FC<EditarPerguntaProps> = ({
 
   const handleQuillChange = (value: string) => {
     setContent(value);
-  };
-
-  const handleDialogClose = () => {
-    setOpenDialog(false);
-    onPerguntaEditada();
-    onClose();
-    if (dialogTitle === "Sucesso") {
-      navigate("/adm/perguntas");
-    }
   };
 
   return (
@@ -203,18 +202,27 @@ const EditarPergunta: React.FC<EditarPerguntaProps> = ({
           <FormControl fullWidth error={!!errors.categoria}>
             <InputLabel>Categoria</InputLabel>
             <Select
-              value={categoriaSelecionada}
+              value={categoriasSelecionadas}
               label="Categoria"
-              onChange={(e) => setCategoriaSelecionada(Number(e.target.value))}
+              multiple
+              onChange={(e) =>
+                setCategoriasSelecionadas(e.target.value as number[])
+              }
+              renderValue={(selected) =>
+                categorias
+                  .filter((c) => selected.includes(c.id))
+                  .map((c) => c.name)
+                  .join(", ")
+              }
             >
-              <MenuItem value="">Selecione uma categoria</MenuItem>
-              {[...categorias]
-                .sort((a, b) => a.name.localeCompare(b.name))
-                .map((categoria) => (
-                  <MenuItem key={categoria.id} value={categoria.id}>
-                    {categoria.name}
-                  </MenuItem>
-                ))}
+              {categorias.map((categoria) => (
+                <MenuItem key={categoria.id} value={categoria.id}>
+                  <Checkbox
+                    checked={categoriasSelecionadas.includes(categoria.id)}
+                  />
+                  <ListItemText primary={categoria.name} />
+                </MenuItem>
+              ))}
             </Select>
 
             {errors.categoria && (
@@ -261,7 +269,19 @@ const EditarPergunta: React.FC<EditarPerguntaProps> = ({
           </FormControl>
         </Box>
 
-        <Box display="flex" justifyContent="space-between">
+        <Box
+          display="flex"
+          flexWrap="wrap"
+          gap={2}
+          sx={{
+            flexDirection: { xs: "column", sm: "row" },
+            alignItems: "stretch",
+            justifyContent: { xs: "center", sm: "space-between" },
+          }}
+        >
+          <Box sx={{ width: { xs: "100%", sm: "auto" } }}>
+            <CriarCategoria onCategoriaCriada={fetchCategorias} />
+          </Box>
           <Button
             variant="contained"
             color="success"
@@ -277,21 +297,6 @@ const EditarPergunta: React.FC<EditarPerguntaProps> = ({
           </Button>
         </Box>
       </Box>
-
-      <Snackbar
-        open={openDialog}
-        autoHideDuration={2000}
-        onClose={handleDialogClose}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
-      >
-        <Alert
-          onClose={handleDialogClose}
-          severity={dialogTitle === "Sucesso" ? "success" : "error"}
-          sx={{ width: "100%" }}
-        >
-          {dialogMessage}
-        </Alert>
-      </Snackbar>
     </Box>
   );
 };

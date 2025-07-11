@@ -9,11 +9,10 @@ import {
   FormControl,
   InputLabel,
   CircularProgress,
-  Snackbar,
-  Alert,
+  Checkbox,
+  ListItemText,
 } from "@mui/material";
 
-import { useNavigate } from "react-router-dom";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 
@@ -24,6 +23,7 @@ import { ICategory } from "types/faqTypes";
 import { GenericMessage } from "@locales/locale";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
 import AttachmentUploadList from "@components/ListaUploadAnexos";
+import { useSnackbar } from "@contexts/SnackbarContext";
 
 interface CriarPerguntaProps {
   onClose: () => void;
@@ -35,19 +35,17 @@ const CriarPergunta: React.FC<CriarPerguntaProps> = ({
   onPerguntaCriada,
 }) => {
   const faqService = useFaqService();
+  const { showSnackbar } = useSnackbar();
 
   const [titulo, setTitulo] = useState("");
   const [content, setContent] = useState("");
   const [categorias, setCategorias] = useState<ICategory[]>([]);
-  const [categoriaSelecionada, setCategoriaSelecionada] = useState<number>();
+  const [categoriasSelecionadas, setCategoriasSelecionadas] = useState<
+    number[]
+  >([]);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
-  const [openDialog, setOpenDialog] = useState(false);
-  const [dialogMessage, setDialogMessage] = useState("");
-  const [dialogTitle, setDialogTitle] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [attachments, setAttachments] = useState<File[]>([]);
-
-  const navigate = useNavigate();
 
   const fetchCategorias = async () => {
     try {
@@ -66,7 +64,8 @@ const CriarPergunta: React.FC<CriarPerguntaProps> = ({
     const newErrors: typeof errors = {};
     if (!titulo.trim()) newErrors.titulo = "O título é obrigatório.";
     if (!content.trim()) newErrors.content = "O conteúdo é obrigatório.";
-    if (!categoriaSelecionada) newErrors.categoria = "Selecione uma categoria.";
+    if (categoriasSelecionadas.length === 0)
+      newErrors.categoria = "Você deve selecionar ao menos uma categoria.";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -89,30 +88,30 @@ const CriarPergunta: React.FC<CriarPerguntaProps> = ({
       const formData = new FormData();
       formData.append("title", titulo);
       formData.append("content", content);
-      if (categoriaSelecionada)
-        formData.append("category_id", categoriaSelecionada.toString());
+      const categoryIds = Array.isArray(categoriasSelecionadas)
+        ? categoriasSelecionadas.map((id) => Number(id))
+        : [Number(categoriasSelecionadas)];
+      categoryIds.forEach((id) =>
+        formData.append("category_id", id.toString())
+      );
+
       attachments.forEach((file) => formData.append("attachments", file));
 
-      await faqService.createQuestion(formData, true); // sinalize que é formData
-      setDialogTitle("Sucesso");
-      setDialogMessage("Pergunta criada com sucesso!");
-      setOpenDialog(true);
-    } catch (error) {
+      await faqService.createQuestion(formData, true);
+      showSnackbar("Pergunta criada com sucesso!", "success");
+      onPerguntaCriada();
+      onClose();
+    } catch (error: any) {
       console.error("Erro ao criar pergunta:", error);
-      setDialogTitle("Erro");
-      setDialogMessage("Erro ao criar a pergunta.");
-      setOpenDialog(true);
+
+      const errorMessage =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Erro ao criar pergunta.";
+
+      showSnackbar(errorMessage, "error");
     } finally {
       setIsSubmitting(false);
-    }
-  };
-
-  const handleDialogClose = () => {
-    setOpenDialog(false);
-    onPerguntaCriada();
-    onClose();
-    if (dialogTitle === "Sucesso") {
-      navigate("/adm/perguntas");
     }
   };
 
@@ -171,18 +170,27 @@ const CriarPergunta: React.FC<CriarPerguntaProps> = ({
           <FormControl fullWidth error={!!errors.categoria}>
             <InputLabel>Categoria</InputLabel>
             <Select
-              value={categoriaSelecionada}
+              value={categoriasSelecionadas}
               label="Categoria"
-              onChange={(e) => setCategoriaSelecionada(Number(e.target.value))}
+              multiple
+              onChange={(e) =>
+                setCategoriasSelecionadas(e.target.value as number[])
+              }
+              renderValue={(selected) =>
+                categorias
+                  .filter((c) => selected.includes(c.id))
+                  .map((c) => c.name)
+                  .join(", ")
+              }
             >
-              <MenuItem value="">Selecione uma categoria</MenuItem>
-              {[...categorias]
-                .sort((a, b) => a.name.localeCompare(b.name))
-                .map((categoria) => (
-                  <MenuItem key={categoria.id} value={categoria.id}>
-                    {categoria.name}
-                  </MenuItem>
-                ))}
+              {categorias.map((categoria) => (
+                <MenuItem key={categoria.id} value={categoria.id}>
+                  <Checkbox
+                    checked={categoriasSelecionadas.includes(categoria.id)}
+                  />
+                  <ListItemText primary={categoria.name} />
+                </MenuItem>
+              ))}
             </Select>
 
             {errors.categoria && (
@@ -249,21 +257,6 @@ const CriarPergunta: React.FC<CriarPerguntaProps> = ({
           </Button>
         </Box>
       </Box>
-
-      <Snackbar
-        open={openDialog}
-        autoHideDuration={2000}
-        onClose={handleDialogClose}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
-      >
-        <Alert
-          onClose={handleDialogClose}
-          severity={dialogTitle === "Sucesso" ? "success" : "error"}
-          sx={{ width: "100%" }}
-        >
-          {dialogMessage}
-        </Alert>
-      </Snackbar>
     </Box>
   );
 };

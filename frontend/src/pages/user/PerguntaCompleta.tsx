@@ -16,7 +16,7 @@ import AttachmentList from "@components/ListaAnexos";
 const PerguntaCompleta: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [pergunta, setPergunta] = useState<IQuestion | null>(null);
-  const [categoria, setCategoria] = useState<string>("");
+  const [categorias, setCategorias] = useState<string[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const navigate = useNavigate();
   const faqService = useFaqService();
@@ -28,10 +28,19 @@ const PerguntaCompleta: React.FC = () => {
         const perguntaData = await faqService.getQuestionById(Number(id));
         setPergunta(perguntaData);
 
-        const categoriaData = await faqService.getCategoryById(
-          perguntaData.category_id
-        );
-        setCategoria(categoriaData.name);
+        if (perguntaData.categories.length > 0) {
+          // Buscar todas as categorias simultaneamente
+          const categoriasData = await Promise.all(
+            perguntaData.categories.map((cat) =>
+              faqService.getCategoryById(cat.id)
+            )
+          );
+
+          const nomesCategorias = categoriasData.map((cat) => cat.name);
+          setCategorias(nomesCategorias);
+        } else {
+          setCategorias(["Sem Categoria"]);
+        }
       } catch (error) {
         console.error("Erro ao buscar dados:", error);
       } finally {
@@ -106,19 +115,28 @@ const PerguntaCompleta: React.FC = () => {
           </Typography>
         </Box>
 
-        <Box display="flex" justifyContent="center" mt={2}>
-          <Chip
-            label={categoria || "Sem Categoria"}
-            color="primary"
-            variant="outlined"
-            sx={{
-              fontSize: "0.95rem",
-              fontWeight: 500,
-              px: 2,
-              py: 0.5,
-              borderRadius: "8px",
-            }}
-          />
+        <Box
+          display="flex"
+          justifyContent="center"
+          mt={2}
+          gap={1}
+          flexWrap="wrap"
+        >
+          {categorias.map((cat) => (
+            <Chip
+              key={cat}
+              label={cat}
+              color="primary"
+              variant="outlined"
+              sx={{
+                fontSize: "0.95rem",
+                fontWeight: 500,
+                px: 2,
+                py: 0.5,
+                borderRadius: "8px",
+              }}
+            />
+          ))}
         </Box>
 
         <Box

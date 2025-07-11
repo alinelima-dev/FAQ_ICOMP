@@ -1,10 +1,10 @@
 import React from "react";
 import { Dialog } from "@mui/material";
 import EditarPergunta from "@pages/adm/EditarPergunta";
-import { Question } from "types/faqTypes";
+import { IQuestion } from "types/faqTypes";
 
 interface EditarPerguntaDialogProps {
-  pergunta: Question;
+  pergunta: IQuestion;
   open: boolean;
   onClose: () => void;
   onPerguntaEditada: () => void;

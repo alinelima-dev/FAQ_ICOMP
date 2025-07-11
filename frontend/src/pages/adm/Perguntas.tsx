@@ -79,10 +79,13 @@ const Perguntas: React.FC = () => {
     }
   };
 
-  const perguntasFiltradas = perguntas.filter((pergunta) => {
+  const perguntasFiltradas = (perguntas ?? []).filter((pergunta) => {
     const categoriaValida =
       categoriaSelecionada === "None" ||
-      pergunta.category_id === Number(categoriaSelecionada);
+      pergunta.categories.some(
+        (cat) => cat.id === parseInt(categoriaSelecionada)
+      );
+
     const pesquisaValida =
       pesquisa.trim() === "" ||
       pergunta.title.toLowerCase().includes(pesquisa.toLowerCase());
@@ -151,9 +154,11 @@ const Perguntas: React.FC = () => {
                 <td>{index + 1}</td>
                 <td>{pergunta.title}</td>
                 <td>
-                  {categorias.find((c) => c.id === pergunta.category_id)
-                    ?.name || "Sem Categoria"}
+                  {pergunta.categories && pergunta.categories.length > 0
+                    ? pergunta.categories.map((c) => c.name).join(", ")
+                    : "Sem Categoria"}
                 </td>
+
                 <td>
                   <div className="actionButton">
                     <Button

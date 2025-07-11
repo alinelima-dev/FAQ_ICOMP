@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import NavbarAdm from "../../components/NavbarAdm";
 import { Table, Input } from "reactstrap";
-import { Button } from "@mui/material";
 import "./css/perguntas.css"; // reusa o estilo
 import { useFaqService } from "@contexts/FaqServiceContext";
 import { useSnackbar } from "@contexts/SnackbarContext";

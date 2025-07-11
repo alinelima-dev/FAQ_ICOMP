@@ -3,13 +3,13 @@ import CategoriaModal from "./CategoriaPopup";
 import { Box } from "@mui/material";
 import { useSnackbar } from "@contexts/SnackbarContext";
 import { useFaqService } from "@contexts/FaqServiceContext";
-import { Category } from "types/faqTypes";
+import { ICategory } from "types/faqTypes";
 import { SnackbarMessage } from "@locales/locale";
 
 interface EditarCategoriaProps {
   isOpen: boolean;
   onClose: () => void;
-  categoria: Category;
+  categoria: ICategory;
   onCategoriaEditada: () => void;
 }
 

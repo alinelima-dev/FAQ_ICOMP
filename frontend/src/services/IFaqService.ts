@@ -20,4 +20,5 @@ export interface IFaqService {
   submitSuggestion(data: Partial<ISuggestion>): Promise<void>;
   getQuestionById(id: number): Promise<IQuestion>;
   getCategoryById(id: number): Promise<ICategory>;
+  forgotPassword(email: string): Promise<void>;
 }

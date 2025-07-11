@@ -32,6 +32,12 @@ const Home: React.FC = () => {
       try {
         const perguntasRes = await faqService.getQuestions();
         const categoriasRes = await faqService.getCategories();
+
+        setPerguntas(perguntasRes);
+        if (!Array.isArray(perguntasRes)) {
+          throw new Error("Retorno de perguntas não é um array");
+        }
+
         setPerguntas(perguntasRes);
         setCategorias(categoriasRes);
       } catch (error) {
@@ -47,7 +53,10 @@ const Home: React.FC = () => {
   const perguntasFiltradas = perguntas.filter((pergunta) => {
     const categoriaValida =
       categoriaSelecionada === "None" ||
-      pergunta.category_id === parseInt(categoriaSelecionada);
+      pergunta.categories.some(
+        (cat) => cat.id === parseInt(categoriaSelecionada)
+      );
+
     const pesquisaValida =
       pesquisa.trim() === "" ||
       pergunta.title.toLowerCase().includes(pesquisa.toLowerCase());
@@ -73,7 +82,9 @@ const Home: React.FC = () => {
               <MenuItem value="None">Todas as Categorias</MenuItem>
               {categorias
                 .filter((categoria) =>
-                  perguntas.some((p) => p.category_id === categoria.id)
+                  perguntas.some((p) =>
+                    p.categories?.some((cat) => cat.id === categoria.id)
+                  )
                 )
                 .sort((a, b) => a.name.localeCompare(b.name))
                 .map((categoria) => (
@@ -91,13 +102,15 @@ const Home: React.FC = () => {
             <CircularProgress />
           </Box>
         ) : perguntasFiltradas.length > 0 ? (
-          <Grid container spacing={3}>
+          <Grid container spacing={3} mb={3}>
             {perguntasFiltradas.map((pergunta) => (
               <Grid item xs={12} sm={6} md={4} key={pergunta.id}>
                 <CardPergunta
+                  key={pergunta.id}
                   id={pergunta.id}
                   title={pergunta.title}
                   content={pergunta.content}
+                  categories={pergunta.categories || []}
                 />
               </Grid>
             ))}

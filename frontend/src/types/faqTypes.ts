@@ -2,7 +2,7 @@ export interface IQuestion {
   id: number;
   title: string;
   content: string;
-  category_id: number;
+  categories: ICategory[];
   created_at?: string;
   updated_at?: string;
   attachments?: IAttachment[];

@@ -6,30 +6,38 @@ import {
   Button,
   Typography,
   Box,
+  Chip,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { GenericMessage } from "@locales/locale";
+import { ICategory } from "types/faqTypes";
 
 interface CardPerguntaProps {
   id: number;
   title: string;
   content: string;
+  categories: ICategory[];
 }
 
-const CardPergunta: React.FC<CardPerguntaProps> = ({ id, title, content }) => {
+const CardPergunta: React.FC<CardPerguntaProps> = ({
+  id,
+  title,
+  content,
+  categories,
+}) => {
   const navigate = useNavigate();
 
   return (
     <Card
       sx={{
         borderRadius: 4,
-        p: "5px",
+        p: "4px",
         background: "linear-gradient(135deg, #6a11cb, #2575fc)",
       }}
     >
       <Box
         sx={{
-          borderRadius: 2,
+          borderRadius: 3,
           backgroundColor: "white",
           height: "100%",
           display: "flex",
@@ -47,18 +55,36 @@ const CardPergunta: React.FC<CardPerguntaProps> = ({ id, title, content }) => {
           >
             {title}
           </Typography>
+          <Box display="flex" mt={1} gap={0.5} flexWrap="wrap">
+            {categories.map((cat) => (
+              <Chip
+                key={cat.id}
+                label={cat.name}
+                color="primary"
+                variant="outlined"
+                sx={{
+                  fontSize: "0.75rem",
+                  fontWeight: 500,
+                  borderRadius: "8px",
+                }}
+              />
+            ))}
+          </Box>
+
           <Typography
             variant="body2"
-            color="#2575fc"
             sx={{
-              mt: 2,
               overflow: "hidden",
               textOverflow: "ellipsis",
               display: "-webkit-box",
               WebkitLineClamp: 4,
               WebkitBoxOrient: "vertical",
+              whiteSpace: "normal",
+              maxHeight: 120,
             }}
-            dangerouslySetInnerHTML={{ __html: content }}
+            dangerouslySetInnerHTML={{
+              __html: content.trim().replace(/^\s*<p>\s*<\/p>/gi, ""),
+            }}
           />
         </CardContent>
         <CardActions sx={{ justifyContent: "flex-end", px: 2, pb: 2 }}>
