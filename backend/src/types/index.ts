@@ -13,6 +13,9 @@ const TYPES = {
   QuestionController: Symbol.for("QuestionController"),
   SuggestionController: Symbol.for("SuggestionController"),
   UserService: Symbol.for("UserService"),
+  PasswordResetService: Symbol.for("PasswordResetService"),
+  PasswordResetController: Symbol.for("PasswordResetController"),
+  EmailService: Symbol.for("EmailService"),
 };
 
 export default TYPES;

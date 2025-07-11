@@ -19,6 +19,8 @@ import { AuthController } from "../controllers/AuthController";
 import { SuggestionRepository } from "../repositories/SuggestionRepository";
 import { SuggestionService } from "../services/SuggestionService";
 import { SuggestionController } from "../controllers/SuggestionController";
+import { PasswordResetController } from "../controllers/PasswordController";
+import { PasswordResetService } from "../services/ResetPassWordService";
 
 const container = new Container();
 
@@ -47,5 +49,12 @@ container
   .bind<SuggestionService>(TYPES.SuggestionService)
   .to(SuggestionService);
 container.bind<SuggestionController>(SuggestionController).toSelf();
+
+container
+  .bind<PasswordResetService>(TYPES.PasswordResetService)
+  .to(PasswordResetService);
+container
+  .bind<PasswordResetController>(TYPES.PasswordResetController)
+  .to(PasswordResetController);
 
 export default container;

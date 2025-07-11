@@ -11,10 +11,10 @@ export class QuestionService {
   createQuestion(
     title: string,
     content: string,
-    categoryId: number,
+    categoryIds: number[],
     files?: Express.Multer.File[]
   ) {
-    return this.questionRepo.create(title, content, categoryId, files);
+    return this.questionRepo.create(title, content, categoryIds, files);
   }
 
   getAllQuestions() {
@@ -29,10 +29,10 @@ export class QuestionService {
     id: number,
     title: string,
     content: string,
-    categoryId: number,
+    categoryIds: number[],
     files?: Express.Multer.File[]
   ) {
-    return this.questionRepo.update(id, title, content, categoryId, files);
+    return this.questionRepo.update(id, title, content, categoryIds, files);
   }
 
   deleteQuestion(id: number) {

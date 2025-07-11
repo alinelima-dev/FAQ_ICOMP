@@ -14,10 +14,14 @@ export class QuestionController {
       const { title, content, category_id } = req.body;
       const files = req.files as Express.Multer.File[]; // múltiplos arquivos
 
+      const categoryIds = Array.isArray(req.body.category_id)
+        ? req.body.category_id.map(Number)
+        : [Number(req.body.category_id)];
+
       const question = await this.questionService.createQuestion(
         title,
         content,
-        category_id,
+        categoryIds,
         files
       );
       res.status(201).json(question);
@@ -55,11 +59,15 @@ export class QuestionController {
       const { title, content, category_id } = req.body;
       const files = req.files as Express.Multer.File[];
 
+      const categoryIds = Array.isArray(category_id)
+        ? category_id.map(Number)
+        : [Number(category_id)];
+
       const updated = await this.questionService.updateQuestion(
         Number(id),
         title,
         content,
-        category_id,
+        categoryIds,
         files
       );
 

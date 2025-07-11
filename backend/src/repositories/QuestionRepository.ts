@@ -3,22 +3,41 @@ import pool from "../config/db";
 
 @injectable()
 export class QuestionRepository {
+  async findByTitle(title: string) {
+    const result = await pool.query(
+      "SELECT * FROM questions WHERE LOWER(title) = LOWER($1)",
+      [title]
+    );
+    return result.rows[0];
+  }
   async create(
     title: string,
     content: string,
-    categoryId: number,
+    categoryIds: number[],
     files?: Express.Multer.File[]
   ) {
+    const existing = await this.findByTitle(title);
+    if (existing) {
+      throw new Error("Já existe uma pergunta com este título.");
+    }
+
     const client = await pool.connect();
     try {
       await client.query("BEGIN");
 
       const result = await client.query(
-        "INSERT INTO questions (title, content, category_id) VALUES ($1, $2, $3) RETURNING *",
-        [title, content, categoryId]
+        "INSERT INTO questions (title, content) VALUES ($1, $2) RETURNING *",
+        [title, content]
       );
 
       const question = result.rows[0];
+
+      for (const categoryId of categoryIds) {
+        await client.query(
+          "INSERT INTO question_categories (question_id, category_id) VALUES ($1, $2)",
+          [question.id, categoryId]
+        );
+      }
 
       if (files && files.length > 0) {
         for (const file of files) {
@@ -50,8 +69,15 @@ export class QuestionRepository {
         [question.id]
       );
       question.attachments = attachmentsResult.rows;
-    }
 
+      const categoriesResult = await pool.query(
+        `SELECT c.id, c.name FROM categories c
+     INNER JOIN question_categories qc ON c.id = qc.category_id
+     WHERE qc.question_id = $1`,
+        [question.id]
+      );
+      question.categories = categoriesResult.rows;
+    }
     return questions;
   }
 
@@ -71,6 +97,14 @@ export class QuestionRepository {
 
     question.attachments = attachmentsResult.rows;
 
+    const categoriesResult = await pool.query(
+      `SELECT c.id, c.name FROM categories c
+   INNER JOIN question_categories qc ON c.id = qc.category_id
+   WHERE qc.question_id = $1`,
+      [id]
+    );
+    question.categories = categoriesResult.rows;
+
     return question;
   }
 
@@ -78,9 +112,14 @@ export class QuestionRepository {
     id: number,
     title: string,
     content: string,
-    categoryId: number,
+    categoryIds: number[],
     files?: Express.Multer.File[]
   ) {
+    const existing = await this.findByTitle(title);
+    if (existing && existing.id !== id) {
+      throw new Error("Já existe outra pergunta com este título.");
+    }
+
     const client = await pool.connect();
 
     try {
@@ -88,13 +127,25 @@ export class QuestionRepository {
 
       const result = await client.query(
         `UPDATE questions
-       SET title = $1, content = $2, category_id = $3, updated_at = CURRENT_TIMESTAMP
-       WHERE id = $4
+       SET title = $1, content = $2, updated_at = CURRENT_TIMESTAMP
+       WHERE id = $3
        RETURNING *`,
-        [title, content, categoryId, id]
+        [title, content, id]
       );
 
       const question = result.rows[0];
+
+      await client.query(
+        `DELETE FROM question_categories WHERE question_id = $1`,
+        [id]
+      );
+
+      for (const categoryId of categoryIds) {
+        await client.query(
+          "INSERT INTO question_categories (question_id, category_id) VALUES ($1, $2)",
+          [id, categoryId]
+        );
+      }
 
       if (files && files.length > 0) {
         for (const file of files) {

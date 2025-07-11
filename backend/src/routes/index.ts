@@ -10,6 +10,8 @@ import authRoutes from "./auth.routes";
 import { upload } from "../config/multerConfig";
 import path from "path";
 import { SuggestionController } from "../controllers/SuggestionController";
+import { PasswordResetController } from "../controllers/PasswordController";
+import TYPES from "../types";
 
 const router = express.Router();
 const categoryController = container.get(CategoryController);
@@ -17,6 +19,9 @@ const questionController = container.get(QuestionController);
 const authController = container.get(AuthController);
 const userController = container.get(UserController);
 const suggestionController = container.get(SuggestionController);
+const passwordController = container.get<PasswordResetController>(
+  TYPES.PasswordResetController
+);
 
 router.post("/categories", asyncHandler(categoryController.create));
 router.get("/categories", asyncHandler(categoryController.getAll));
@@ -63,5 +68,14 @@ router.get("/attachments/:filename", (req, res) => {
 
 router.post("/suggestions", asyncHandler(suggestionController.create));
 router.get("/suggestions", asyncHandler(suggestionController.getAll));
+
+router.post(
+  "/auth/request-reset",
+  asyncHandler(passwordController.requestReset)
+);
+router.post(
+  "/auth/reset-password",
+  asyncHandler(passwordController.resetPassword)
+);
 
 export default router;

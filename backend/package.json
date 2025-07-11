@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "bcrypt": "^5.1.1",
+    "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
@@ -8,6 +9,7 @@
     "jsonwebtoken": "^9.0.2",
     "multer": "^2.0.1",
     "mutter": "^1.0.1",
+    "nodemailer": "^7.0.5",
     "pg": "^8.14.1",
     "reflect-metadata": "^0.2.2",
     "tsyringe": "^4.10.0"
@@ -23,6 +25,7 @@
     "@types/jsonwebtoken": "^9.0.9",
     "@types/multer": "^2.0.0",
     "@types/node": "^22.14.1",
+    "@types/nodemailer": "^6.4.17",
     "@types/pg": "^8.11.13",
     "@types/reflect-metadata": "^0.1.0",
     "ts-node": "^10.9.2",
