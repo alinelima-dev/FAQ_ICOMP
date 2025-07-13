@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Box,
   Paper,
@@ -11,45 +11,23 @@ import {
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useUserContext } from "@contexts/UserContext";
 import { useSnackbar } from "@contexts/SnackbarContext";
-//import bcrypt from "bcryptjs";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@contexts/AuthContext";
 
-const RedefinirSenha: React.FC = () => {
+const TrocarSenha: React.FC = () => {
   const { userService } = useUserContext();
   const { showSnackbar } = useSnackbar();
-  //const { token } = useParams<{ token: string }>();
+  const { usuario } = useAuth(); // pega o nome/email do usuário logado
   const navigate = useNavigate();
-  const location = useLocation();
 
-  const [token, setToken] = useState("");
+  const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [showNewPassword, setShowNewPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
-  // const hashSalvo =
-  //   "$2a$12$JH3XiRXT3s3x7Yv0KjIMYuxF.u4r35N3/u50xdUQLIURKKnLoPIvm";
-
-  // const testarSenhaAtual = async () => {
-  //   const confere = await bcrypt.compare(currentPassword, hashSalvo);
-  //   showSnackbar(
-  //     confere
-  //       ? "✅ A senha atual está correta!"
-  //       : "❌ A senha atual está incorreta.",
-  //     confere ? "success" : "error"
-  //   );
-  // };
-
-  useEffect(() => {
-    const queryParams = new URLSearchParams(location.search);
-    const tokenFromUrl = queryParams.get("token");
-    if (tokenFromUrl) {
-      setToken(tokenFromUrl);
-    } else {
-      showSnackbar("Token de redefinição ausente.", "error");
-      navigate("/login");
-    }
-  }, [location.search, showSnackbar, navigate]);
+  const [showPasswords, setShowPasswords] = useState({
+    current: false,
+    new: false,
+    confirm: false,
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -59,12 +37,21 @@ const RedefinirSenha: React.FC = () => {
       return;
     }
 
+    if (!usuario) {
+      showSnackbar("Usuário não identificado.", "error");
+      return;
+    }
+
     try {
-      await userService.resetPassword(token, newPassword);
-      showSnackbar("Senha redefinida com sucesso!", "success");
-      navigate("/login");
+      await userService.updatePassword({
+        usuario,
+        currentPassword,
+        newPassword,
+      });
+      showSnackbar("Senha alterada com sucesso!", "success");
+      navigate("/adm/perguntas");
     } catch (error) {
-      showSnackbar("Erro ao redefinir senha.", "error");
+      showSnackbar("Erro ao alterar senha.", "error");
     }
   };
 
@@ -92,12 +79,39 @@ const RedefinirSenha: React.FC = () => {
       >
         <form onSubmit={handleSubmit}>
           <Typography variant="h5" align="center" gutterBottom>
-            Redefinir senha
+            Alterar Senha
           </Typography>
 
           <TextField
+            label="Senha atual"
+            type={showPasswords.current ? "text" : "password"}
+            fullWidth
+            margin="normal"
+            value={currentPassword}
+            onChange={(e) => setCurrentPassword(e.target.value)}
+            required
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    onClick={() =>
+                      setShowPasswords((prev) => ({
+                        ...prev,
+                        current: !prev.current,
+                      }))
+                    }
+                    edge="end"
+                  >
+                    {showPasswords.current ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+          />
+
+          <TextField
             label="Nova senha"
-            type={showNewPassword ? "text" : "password"}
+            type={showPasswords.new ? "text" : "password"}
             fullWidth
             margin="normal"
             value={newPassword}
@@ -107,10 +121,15 @@ const RedefinirSenha: React.FC = () => {
               endAdornment: (
                 <InputAdornment position="end">
                   <IconButton
-                    onClick={() => setShowNewPassword((prev) => !prev)}
+                    onClick={() =>
+                      setShowPasswords((prev) => ({
+                        ...prev,
+                        new: !prev.new,
+                      }))
+                    }
                     edge="end"
                   >
-                    {showNewPassword ? <VisibilityOff /> : <Visibility />}
+                    {showPasswords.new ? <VisibilityOff /> : <Visibility />}
                   </IconButton>
                 </InputAdornment>
               ),
@@ -119,7 +138,7 @@ const RedefinirSenha: React.FC = () => {
 
           <TextField
             label="Confirmar nova senha"
-            type={showConfirmPassword ? "text" : "password"}
+            type={showPasswords.confirm ? "text" : "password"}
             fullWidth
             margin="normal"
             value={confirmPassword}
@@ -129,10 +148,15 @@ const RedefinirSenha: React.FC = () => {
               endAdornment: (
                 <InputAdornment position="end">
                   <IconButton
-                    onClick={() => setShowConfirmPassword((prev) => !prev)}
+                    onClick={() =>
+                      setShowPasswords((prev) => ({
+                        ...prev,
+                        confirm: !prev.confirm,
+                      }))
+                    }
                     edge="end"
                   >
-                    {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                    {showPasswords.confirm ? <VisibilityOff /> : <Visibility />}
                   </IconButton>
                 </InputAdornment>
               ),
@@ -150,4 +174,4 @@ const RedefinirSenha: React.FC = () => {
   );
 };
 
-export default RedefinirSenha;
+export default TrocarSenha;

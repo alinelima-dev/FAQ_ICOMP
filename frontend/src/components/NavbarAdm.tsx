@@ -118,7 +118,7 @@ const NavbarAdm: React.FC = () => {
                   <ListItemText primary="Sugestões" />
                 </ListItemButton>
               )}
-              <ListItemButton onClick={() => navigate("/trocar-senha")}>
+              <ListItemButton onClick={() => navigate("/adm/trocar-senha")}>
                 <ListItemIcon>
                   <FaPen />
                 </ListItemIcon>

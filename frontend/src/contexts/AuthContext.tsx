@@ -1,6 +1,13 @@
-import React, { createContext, useState, useContext, ReactNode } from "react";
+import React, {
+  createContext,
+  useState,
+  useContext,
+  ReactNode,
+  useEffect,
+} from "react";
 import { login as loginService } from "../services/authService";
 import axios from "axios";
+import { isTokenExpired } from "@utils/index";
 
 interface AuthContextType {
   token: string | null;
@@ -41,6 +48,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
 
     delete axios.defaults.headers["Authorization"];
   };
+
+  useEffect(() => {
+    const savedToken = localStorage.getItem("token");
+    if (savedToken && isTokenExpired(savedToken)) {
+      logout(); // remove token inválido
+    }
+  }, []);
 
   return (
     <AuthContext.Provider value={{ token, usuario, login, logout }}>

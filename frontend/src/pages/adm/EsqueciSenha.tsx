@@ -29,6 +29,7 @@ const EsqueciSenha: React.FC = () => {
         background: "linear-gradient(50deg, #2575fc, #6a11cb)",
         backgroundSize: "400% 400%",
         animation: "gradientMove 15s ease infinite",
+        p: 2,
       }}
     >
       <Paper

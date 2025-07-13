@@ -45,6 +45,7 @@ const Login: React.FC = () => {
         background: "linear-gradient(50deg, #2575fc, #6a11cb)",
         backgroundSize: "400% 400%",
         animation: "gradientMove 1s ease infinite",
+        p: 2,
       }}
     >
       <Paper

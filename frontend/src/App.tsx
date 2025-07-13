@@ -7,7 +7,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Home from "./pages/user/Home";
 import PerguntaCompleta from "./pages/user/PerguntaCompleta";
 import { SnackbarProvider } from "@contexts/SnackbarContext";
-import TrocarSenha from "@pages/adm/RedefinirSenha";
+import TrocarSenha from "@pages/adm/TrocarSenha";
 import { UserProvider } from "@contexts/UserContext";
 import { IoCProvider } from "@contexts/IoCContext";
 import Sugestoes from "@pages/adm/Sugestoes";
@@ -26,7 +26,6 @@ function App() {
                 <Route path="/" element={<Home />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/pergunta/:id" element={<PerguntaCompleta />} />
-                <Route path="/trocar-senha" element={<TrocarSenha />} />
                 <Route path="/adm/sugestoes" element={<Sugestoes />} />
                 <Route path="/esqueci-senha" element={<EsqueciSenha />} />
                 <Route path="/redefinir-senha" element={<RedefinirSenha />} />
@@ -45,6 +44,15 @@ function App() {
                   element={
                     <ProtectedRoute>
                       <Categorias />
+                    </ProtectedRoute>
+                  }
+                />
+
+                <Route
+                  path="/adm/trocar-senha"
+                  element={
+                    <ProtectedRoute>
+                      <TrocarSenha />
                     </ProtectedRoute>
                   }
                 />
