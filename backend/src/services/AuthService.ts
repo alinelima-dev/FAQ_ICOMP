@@ -8,7 +8,7 @@ export class AuthService {
     try {
       //buscar o usuário no banco de dados pelo nome de usuário
       console.log("Buscando usuário no banco...");
-      const query = "SELECT * FROM usuarios WHERE usuario = $1"; // Ajuste o nome da tabela conforme sua estrutura
+      const query = "SELECT * FROM usuarios WHERE email = $1";
       const result = await pool.query(query, [usuario]);
 
       if (result.rows.length === 0) {

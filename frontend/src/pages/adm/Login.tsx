@@ -62,7 +62,7 @@ const Login: React.FC = () => {
           </Typography>
 
           <TextField
-            label="Usuário"
+            label="Email"
             fullWidth
             margin="normal"
             value={usuario}

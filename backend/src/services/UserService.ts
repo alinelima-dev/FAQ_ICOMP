@@ -3,7 +3,7 @@ import bcrypt from "bcrypt";
 
 export class UserService {
   async findUserByUsername(username: string) {
-    const query = "SELECT * FROM usuarios WHERE usuario = $1";
+    const query = "SELECT * FROM usuarios WHERE email = $1";
     const result = await pool.query(query, [username]);
 
     if (result.rows.length === 0) {
@@ -34,7 +34,7 @@ export class UserService {
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 
-    const updateQuery = "UPDATE usuarios SET senha = $1 WHERE usuario = $2";
+    const updateQuery = "UPDATE usuarios SET senha = $1 WHERE email = $2";
     await pool.query(updateQuery, [hashedPassword, username]);
   }
 }
